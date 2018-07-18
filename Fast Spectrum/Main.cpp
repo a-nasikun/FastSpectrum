@@ -36,8 +36,7 @@ int main(int argc, char *argv[])
 {
 	// [1]		INITIALIZATION
 	// [1.1]	Reading the Mesh
-	//string meshFile = "../Models/AIM810_Red Circular Box/810_Red_circular_box.off";
-	string meshFile = "../Models/AIM894_Chinese Dragon/dragon_5000.obj";
+	//string meshFile = "../Models/AIM894_Chinese Dragon/894_Chinese Dragon.obj";
 	readMesh(meshFile, V, F, opMeshData);
 	
 	// [1.2]	Constructing Laplacian Matrices (Stiffness and Mass-Matrix)
