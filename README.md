@@ -1,6 +1,6 @@
 ## Fast Approximation of Eigenproblem of Laplace-Beltrami Operator from Triangle Mesh
 
-We approximate the lowest part of the eigenvalues and eigenfunctions of Laplace-Beltrami operator, to have faster speed, less storage, and quicker mapping to world coordinates. Our general idea is to construct a subspace (from the original space) that can approximate the low frequency (smooth) functions on the manifolds. Then we will solve the eigenproblem restricted to such subspace.
+We _approximate_ the lowest part of the _eigenvalues_ and _eigenfunctions_ of **Laplace-Beltrami operator**, to have faster speed, less storage, and quicker mapping to world coordinates. Our general idea is to construct a **subspace** (from the original space) that can approximate the _low frequency (smooth)_ functions on the manifold. Then we will solve the eigenproblem _restricted to such subspace_.
 
 Here is main construct of our approximation scheme:
 1. Construct a subspace  
@@ -11,11 +11,11 @@ Here is main construct of our approximation scheme:
    1. low-dim eigenproblem
    2. lift the eigenfunction
 
-Please not that this program requires **Eigen**, **LibIGL**, and an **eigensolver** (either **CUDA's cuSOLVER** or **Matlab's eigs** function).
+Please note that this program requires **Eigen**, **LibIGL**, and an **eigensolver** (either **CUDA's cuSOLVER** or **Matlab's eigs** function).
 
 ## How to Compile and Run Our Implementation
 
-We use CMake for easy installation/deployment on your machine, by creating a CMakeFiles that hopefully do (almost) everything to make our code runs in your machine. 
+We use **CMake** for easy installation/deployment on your machine, by creating a CMakeFiles that hopefully do (almost) everything to make our code runs in your machine. 
 
 1. Download required libraries.
    1. Eigen: http://eigen.tuxfamily.org/index.php?title=Main_Page
@@ -34,7 +34,7 @@ We use CMake for easy installation/deployment on your machine, by creating a CMa
 4. Download/Clone our repository
 5. Use CMake to compile our implementation
 
-Having followed those steps, our program should compile. If you have any problem compiling it, please drop me an email at a.nasikun[at]tudelft.nl
+Having followed those steps, our program should compile and run well. If you have any problem compiling it, please drop me an email at a.nasikun[at]tudelft.nl.
 
 ## SGP 2018 (Symposium on Geometry Processing 2018)
 
