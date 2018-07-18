@@ -18,7 +18,7 @@ double							maxNeighDist, avgEdgeLength;
 int								sampleSize;
 MyMesh							opMeshData;
 
-/* For Visulization / Trivial stuffs */
+/* For Visulization/Trivial stuffs */
 int				eigenToShow = 0;
 
 /* [FUNCTIONS DECLARATION] */
@@ -34,9 +34,18 @@ void computeEigenPair(Eigen::SparseMatrix<double> &S_, Eigen::SparseMatrix<doubl
 /* [MAIN FUNCTION THAT CALLS EVERYTHING ELSE] */
 int main(int argc, char *argv[])
 {
+	cout << "===============================================" << endl;
+	cout << "======== Welcome to Fast Spectrum =============" << endl;
+	cout << "========== Visualization tools ================" << endl;
+	cout << "Press \"B\" or \"b\" \t: Show 1 (random index) basis." << endl;
+	cout << "Press \"S\" or \"s\" \t: Show sample points." << endl;
+	cout << "Press \"1\" \t\t: Show a lower eigenvector (i=i-1)" << endl;
+	cout << "Press \"2\" \t\t: Show a larger eigenvector (i=i+1)" << endl;
+	cout << "===============================================" << endl;
+
 	// [1]		INITIALIZATION
 	// [1.1]	Reading the Mesh
-	//string meshFile = "../Models/AIM894_Chinese Dragon/894_Chinese Dragon.obj";
+	string meshFile = "../Models/AIM894_Chinese Dragon/894_Chinese Dragon.obj";
 	readMesh(meshFile, V, F, opMeshData);
 	
 	// [1.2]	Constructing Laplacian Matrices (Stiffness and Mass-Matrix)
@@ -76,14 +85,10 @@ int main(int argc, char *argv[])
 		case '1':
 			eigenToShow = max(0, eigenToShow -1);
 			visualizeEigenvector(viewer, V, F, U, LDEigVec, eigenToShow);
-			printf("eigen id=%d\n", eigenToShow);
-			cout << LDEigVec.block(0, eigenToShow, 10, 1);
 			break;
 		case '2':
 			eigenToShow = min((int) (LDEigVec.cols()-1), eigenToShow+1);
 			visualizeEigenvector(viewer, V, F, U, LDEigVec, eigenToShow);
-			printf("eigen id=%d\n", eigenToShow);
-			cout << LDEigVec.block(0, eigenToShow, 10, 1);
 			break;
 
 		default:
@@ -156,7 +161,6 @@ void constructSample(const Eigen::MatrixXd &V, igl::viewer::Viewer &viewer, vect
 	int nBox = 13; 
 
 	/* Different type of sampling */
-	//constructDijkstraSample(viewer, V, AdM, sampleSize, Sample);
 	constructPoissonDiskSample(viewer, V, nBox, avgEdgeLength, Sample);
 	//constructVoxelSample(viewer, V, nBox, Sample);	
 	//constructRandomSample(Sample, V, sampleSize);
@@ -209,7 +213,7 @@ void constructBasis(const Eigen::MatrixXd &V, MyMesh &opMeshData, const Eigen::V
 			D(i) = numeric_limits<double>::infinity();
 		}
 
-		printf("proc=%d, tid=%d, ntids=%d, ipts=%d, istart=%d. Triplet size %d \n", iproc, tid, ntids, ipts, istart, UTriplet.size());
+		//printf("Thread %d handles %d samples, starting from %d-th sample.\n", tid, ipts, istart);
 
 		UTriplet[tid].reserve(2.0 * ((double)ipts / (double)sampleSize) * 20.0 * V.rows());
 
@@ -272,6 +276,6 @@ void formPartitionOfUnity(Eigen::SparseMatrix<double> &U)
 /* [Compute the eigenpairs of Low-Dim Problem ] */
 void computeEigenPair(Eigen::SparseMatrix<double> &S_, Eigen::SparseMatrix<double> &M_, Eigen::MatrixXd &LDEigVec, Eigen::VectorXd &LDEigVal)
 {
-	//computeEigenGPU(S_, M_, LDEigVec, LDEigVal);
-	computeEigenMatlab(S_, M_, LDEigVec, LDEigVal);
+	computeEigenGPU(S_, M_, LDEigVec, LDEigVal);
+	//computeEigenMatlab(S_, M_, LDEigVec, LDEigVal);
 }
