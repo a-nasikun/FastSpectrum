@@ -18,17 +18,16 @@ Please not that this program requires **Eigen**, **LibIGL**, and an **eigensolve
 We use CMake for easy installation/deployment on your machine, by creating a CMakeFiles that hopefully do (almost) everything to make our code runs in your machine. 
 
 1. Download required libraries.
-   1. Eigen
-   2. LibIGL
-   3. Matlab
-   4. CUDA (with cuSolver)
-   5. OpenMesh
+   1. Eigen: http://eigen.tuxfamily.org/index.php?title=Main_Page
+   2. LibIGL: http://libigl.github.io/libigl/
+   3. Matlab: https://nl.mathworks.com/products/matlab.html
+   4. CUDA (with cuSolver): https://developer.nvidia.com/cuda-zone
+   5. OpenMesh: https://www.openmesh.org/
 2. Set environment variables related to those libraries
-   1. EIGEN_DIR
-   2. IGL_DIR
-   3. MATLAB_DIR
-   4. CUDA_DIR
-   5. OPENMESH_DIR
+   1. EIGEN_DIR = /path/to/eigen/main/directory
+   2. IGL_DIR = /path/to/libigl/main/directory
+   3. MATLAB_DIR = C/Program Files/Matlab/**yourVersion**/extern
+   4. OPENMESH_DIR = C/Program Files/OpenMeshX.X
 3. Make sure you have CMake in your machine
 4. Download/Clone our repository
 5. Use CMake to compile our implementation
