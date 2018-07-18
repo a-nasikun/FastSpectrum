@@ -12,20 +12,12 @@ include_directories($ENV{IGL_DIR}
 					$ENV{EIGEN_DIR}
 					$ENV{OPENMESH_DIR}/include/
 					$ENV{MATLAB_DIR}/include/
-					$ENV{CUDA_DIR}/include/
 )
 
 #Defining the system varibles where the link libraries reside					
 link_directories($ENV{MATLAB_DIR}/lib/win64/microsoft/
-	if(MSVC_VERSION EQUAL 1900)
-				 $ENV{GLFW_DIR}/lib-vc2015/
-	elseif(MSVC_VERSION EQUAL 1800)
-				$ENV{GLFW_DIR}/lib-vc2013/
-	elseif(MSVC_VERSION EQUAL 1700)
-				$ENV{GLFW_DIR}/lib-vc2012/
-	endif()
 				 $ENV{OPENMESH_DIR}/lib/
-				 $ENV{CudaToolkitLibDir}
+				 $ENV{GLFW_DIR}/lib-vc2015/			#Change according to your Visual Studio
 )	
 
 #Stating what files to include in the project				 
@@ -70,5 +62,3 @@ if(OPENMP_FOUND)
 endif(OPENMP_FOUND)
 
 set(CMAKE_SUPPRESS_REGENERATION true)
-set_target_properties(${PROJECT_NAME} PROPERTIES EXCLUDE_FROM_ALL TRUE)
-#set(exclude_flag EXCLUDE_FROM_ALL)
