@@ -21,14 +21,16 @@ We use CMake for easy installation/deployment on your machine, by creating a CMa
    1. Eigen: http://eigen.tuxfamily.org/index.php?title=Main_Page
    2. LibIGL: http://libigl.github.io/libigl/
    3. Matlab: https://nl.mathworks.com/products/matlab.html
-   4. CUDA (with cuSolver): https://developer.nvidia.com/cuda-zone
-   5. OpenMesh: https://www.openmesh.org/
+   4. OpenMesh: https://www.openmesh.org/
+   5. GLFW: http://www.glfw.org/download.html   
+   6. CUDA (with cuSolver): https://developer.nvidia.com/cuda-zone
 2. Set environment variables related to those libraries
    1. EIGEN_DIR = /path/to/eigen/main/directory
    2. IGL_DIR = /path/to/libigl/main/directory
    3. MATLAB_DIR = C/Program Files/Matlab/**yourVersion**/extern
    4. OPENMESH_DIR = C/Program Files/OpenMeshX.X
-3. Make sure you have CMake in your machine
+   5. GLFW_DIR = /path/to/GLFW/main/directory
+3. Make sure you have [CMake](https://cmake.org/ "Download CMake") in your machine
 4. Download/Clone our repository
 5. Use CMake to compile our implementation
 
@@ -37,4 +39,3 @@ Having followed those steps, our program should compile. If you have any problem
 ## SGP 2018 (Symposium on Geometry Processing 2018)
 
 This work was presented at [SGP 2018](https://sgp2018.sciencesconf.org/resource/page/id/10#s4 "SGP 2018") at Paris TelecomTech, organized by EuroGraphics and ACM SIGGRAPH, and will be published at [Computer Graphics Forum (CGF) Vol.37(5)](https://onlinelibrary.wiley.com/loi/14678659 "CGF Volume 37 Issue 5"). You can read the paper from [our website](https://graphics.tudelft.nl/ahmad-nasikun/ "Fast Approximation of Laplace-Beltrami Eigenproblems") for a more detailed explation of our approximation algorithm. 
-   
