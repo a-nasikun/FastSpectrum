@@ -1,6 +1,28 @@
 #include "FastSpectrum.h"
 
 /* [MAIN FUNCTIONS IN FAST APPROXIMATIONG ALGORITHM] */
+void FastSpectrum::computeEigenPairs(Eigen::MatrixXd &V, Eigen::MatrixXi &F, const int &numOfSamples, Eigen::MatrixXd &reducedEigVects, Eigen::VectorXd &reducedEigVals)
+{
+	// [1.2]	Constructing Laplacian Matrices (Stiffness and Mass-Matrix)
+	constructLaplacianMatrix(V, F, S, M, AdM, avgEdgeLength, DistanceTableSpM);
+
+	// [2]		SAMPLING
+	constructSample(V, AdM, sampleSize, Sample);
+
+	// [3]		BASIS CONSTRUCTION
+	double	distRatio = sqrt(pow(0.7, 2) + pow(0.7, 2));
+	maxNeighDist = distRatio * sqrt((double)V.rows() / (double)Sample.size()) * avgEdgeLength;
+	constructBasis(V, F, Sample, AdM, DistanceTableSpM, sampleSize, maxNeighDist, Basis);
+	formPartitionOfUnity(Basis);
+
+	// [4]		LOW-DIM PROBLEM
+	S_ = Basis.transpose() * S  * Basis;
+	M_ = Basis.transpose() * M  * Basis;
+
+	// [5]		SOLVING LOW-DIM EIGENPROBLEM
+	computeEigenPair(S_, M_, reducedEigVects, reducedEigVals);
+}
+
 void FastSpectrum::computeEigenPairs(const string &meshFile, const int &numOfSamples, Eigen::MatrixXd &reducedEigVects, Eigen::VectorXd &reducedEigVals)
 {
 	// [1]		INITIALIZATION
@@ -27,9 +49,9 @@ void FastSpectrum::computeEigenPairs(const string &meshFile, const int &numOfSam
 	computeEigenPair(S_, M_, reducedEigVects, reducedEigVals);
 }
 
-void FastSpectrum::getFunctionBasis(Eigen::SparseMatrix<double> &U)
+void FastSpectrum::getFunctionBasis(Eigen::SparseMatrix<double> &Basis)
 {
-
+	Basis = this->Basis;
 }
 
 void FastSpectrum::getReducedLaplacian()

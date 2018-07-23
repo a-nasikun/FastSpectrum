@@ -7,8 +7,11 @@ find_package(CUDA QUIET REQUIRED)
 set (${PROJECT_NAME}_VERSION_MAJOR 1)
 set (${PROJECT_NAME}_VERSION_MINOR 0)
 
+SET(CMAKE_BUILD_TYPE "Release")
+
 set (IGL_DIR "" CACHE PATH "Root directory of libIGL")
 set (EIGEN_DIR "" CACHE PATH "Root directory of Eigen")
+set (IMGUI_LIBRARY_DIR "" CACHE PATH "Library directory of IMGUI")
 set (GLFW_INCLUDE_DIR "" CACHE PATH "Include directory of GLFW")
 set (GLFW_LIBS_DIR "" CACHE PATH "Library directory of GLFW")
 set (GLAD_INCLUDE_DIR "" CACHE PATH "Include directory of GLAD")
