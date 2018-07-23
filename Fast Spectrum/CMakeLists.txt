@@ -9,25 +9,23 @@ set (${PROJECT_NAME}_VERSION_MINOR 0)
 
 set (IGL_DIR "" CACHE PATH "Root directory of libIGL")
 set (EIGEN_DIR "" CACHE PATH "Root directory of Eigen")
-set (MATLAB_LIBS_DIR "" CACHE PATH "Matlab static library dirs (e.g. R2018a/extern/lib/win64/microsoft)")
-set (MATLAB_INCLUDE_DIR "" CACHE PATH "Matlab include dir ((e.g. R2018a/extern/include)")
 set (GLFW_INCLUDE_DIR "" CACHE PATH "Include directory of GLFW")
 set (GLFW_LIBS_DIR "" CACHE PATH "Library directory of GLFW")
 set (GLAD_INCLUDE_DIR "" CACHE PATH "Include directory of GLAD")
 set (GLAD_LIBRARY_DIR "" CACHE PATH "Library directory of GLAD")
+#set (MATLAB_LIBS_DIR "" CACHE PATH "Matlab static library dirs (e.g. R2018a/extern/lib/win64/microsoft)")
+#set (MATLAB_INCLUDE_DIR "" CACHE PATH "Matlab include dir ((e.g. R2018a/extern/include)")
 
 
 #Defining the system varibles where the include files reside
 include_directories(${IGL_DIR}/include/
 					${EIGEN_DIR}
-					${MATLAB_INCLUDE_DIR}
 					${GLFW_INCLUDE_DIR}
 					${GLAD_INCLUDE_DIR}
 )
 
 #Defining the system varibles where the link libraries reside					
-link_directories(${MATLAB_LIBS_DIR}
-				 ${GLFW_LIBS_DIR}
+link_directories(${GLFW_LIBS_DIR}
 				 ${GLAD_LIBRARY_DIR}
 )	
 
@@ -53,9 +51,8 @@ target_link_libraries(
 	glfw3.lib;
 	cublas.lib; 			cudart.lib; 
 	cusolver.lib; 			cusparse.lib;
-	libeng.lib; 			libut.lib; 
-	libmex.lib; 			libmx.lib;
-	
+	#libeng.lib; 			libut.lib; 
+	#libmex.lib; 			libmx.lib;	
 )	
 
 if(MSVC)	
