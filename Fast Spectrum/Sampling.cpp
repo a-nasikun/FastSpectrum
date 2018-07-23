@@ -23,7 +23,7 @@ void constructRandomSample(Eigen::VectorXi &Sample, const Eigen::MatrixXd &V, in
 }
 
 /* Construct Voxel-based sampling */
-void constructVoxelSample(igl::viewer::Viewer &viewer, const Eigen::MatrixXd &V, const int &n, Eigen::VectorXi &Sample)
+void constructVoxelSample(igl::opengl::glfw::Viewer &viewer, const Eigen::MatrixXd &V, const int &n, Eigen::VectorXi &Sample)
 {
 	// Initialization of computing boundary of each box	
 	Eigen::Vector3d minV(V.col(0).minCoeff(), V.col(1).minCoeff(), V.col(2).minCoeff());
@@ -95,7 +95,7 @@ void constructVoxelSample(igl::viewer::Viewer &viewer, const Eigen::MatrixXd &V,
 }
 
 /* Construct Poisson-Disk Sample */
-void constructPoissonDiskSample(igl::viewer::Viewer &viewer, const Eigen::MatrixXd &V, const int &n, const double &avgEdgeLength, Eigen::VectorXi &Sample)
+void constructPoissonDiskSample(igl::opengl::glfw::Viewer &viewer, const Eigen::MatrixXd &V, const int &n, const double &avgEdgeLength, Eigen::VectorXi &Sample)
 {
 	/* Initialization of computing boundary of each box	 */
 	Eigen::Vector3d minV(V.col(0).minCoeff(), V.col(1).minCoeff(), V.col(2).minCoeff());

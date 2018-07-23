@@ -18,7 +18,7 @@
 #include <igl/avg_edge_length.h>
 #include <igl/eigs.h>
 #include <igl/isolines.h>
-#include <igl/viewer/Viewer.h>
+#include <igl/opengl/glfw/Viewer.h>
 
 /* [STANDARD LIBRARIES] */
 #include <iostream>
@@ -40,11 +40,11 @@
 #include <chrono>
 
 /* [MATLAB] */
-#include <MatlabDataArray.hpp>
-#include <MatlabEngine.hpp>
-#include <tuple>
-#include "engine.h"
-#include "mex.h"
+//#include <MatlabDataArray.hpp>
+//#include <MatlabEngine.hpp>
+//#include <tuple>
+//#include "engine.h"
+//#include "mex.h"
 
 /* [CUDA] */
 #include "cuda_runtime.h"

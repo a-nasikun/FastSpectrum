@@ -1,4 +1,4 @@
-cmake_minimum_required (VERSION 3.8 FATAL_ERROR)
+cmake_minimum_required (VERSION 3.6 FATAL_ERROR)
 set(PROJECT_NAME FastSpectrum)
 
 project (${PROJECT_NAME} LANGUAGES CXX CUDA)
@@ -7,17 +7,28 @@ find_package(CUDA QUIET REQUIRED)
 set (${PROJECT_NAME}_VERSION_MAJOR 1)
 set (${PROJECT_NAME}_VERSION_MINOR 0)
 
+set (IGL_DIR "" CACHE PATH "Root directory of libIGL")
+set (EIGEN_DIR "" CACHE PATH "Root directory of Eigen")
+set (MATLAB_LIBS_DIR "" CACHE PATH "Matlab static library dirs (e.g. R2018a/extern/lib/win64/microsoft)")
+set (MATLAB_INCLUDE_DIR "" CACHE PATH "Matlab include dir ((e.g. R2018a/extern/include)")
+set (GLFW_INCLUDE_DIR "" CACHE PATH "Include directory of GLFW")
+set (GLFW_LIBS_DIR "" CACHE PATH "Library directory of GLFW")
+set (GLAD_INCLUDE_DIR "" CACHE PATH "Include directory of GLAD")
+set (GLAD_LIBRARY_DIR "" CACHE PATH "Library directory of GLAD")
+
+
 #Defining the system varibles where the include files reside
-include_directories($ENV{IGL_DIR} 
-					$ENV{EIGEN_DIR}
-					$ENV{OPENMESH_DIR}/include/
-					$ENV{MATLAB_DIR}/include/
+include_directories(${IGL_DIR}/include/
+					${EIGEN_DIR}
+					${MATLAB_INCLUDE_DIR}
+					${GLFW_INCLUDE_DIR}
+					${GLAD_INCLUDE_DIR}
 )
 
 #Defining the system varibles where the link libraries reside					
-link_directories($ENV{MATLAB_DIR}/lib/win64/microsoft/
-				 $ENV{OPENMESH_DIR}/lib/
-				 $ENV{GLFW_DIR}/lib-vc2015/			#Change according to your Visual Studio
+link_directories(${MATLAB_LIBS_DIR}
+				 ${GLFW_LIBS_DIR}
+				 ${GLAD_LIBRARY_DIR}
 )	
 
 #Stating what files to include in the project				 
@@ -38,15 +49,13 @@ add_executable(${PROJECT_NAME}
 target_link_libraries(
 	${PROJECT_NAME}
 	OpenGL32.lib; 			
-	glew32s.lib;
-	glfw3.lib; 				glfw3dll.lib;
+	glad.lib;
+	glfw3.lib;
 	cublas.lib; 			cudart.lib; 
 	cusolver.lib; 			cusparse.lib;
-	libMatlabEngine.lib; 	libMatlabDataArray.lib; 
 	libeng.lib; 			libut.lib; 
 	libmex.lib; 			libmx.lib;
-	OpenMeshCore.lib; 		OpenMeshCored.lib; 
-	OpenMeshTools.lib; 		OpenMeshToolsd.lib;
+	
 )	
 
 if(MSVC)	

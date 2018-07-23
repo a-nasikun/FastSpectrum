@@ -1,36 +1,36 @@
 #include "Visualization.h"
 
 /* Visualize the samples */
-void visualizeSample(igl::viewer::Viewer &viewer, const Eigen::MatrixXd &V, const Eigen::MatrixXi &F, const Eigen::VectorXi &Sample)
+void visualizeSample(igl::opengl::glfw::Viewer &viewer, const Eigen::MatrixXd &V, const Eigen::MatrixXi &F, const Eigen::VectorXi &Sample)
 {
-	viewer.data.clear();
-	viewer.data.set_mesh(V, F);
+	viewer.data().clear();
+	viewer.data().set_mesh(V, F);
 
 	for (int i = 0; i < Sample.size(); i++)
 	{
-		viewer.data.add_points(V.row(Sample(i)), Eigen::RowVector3d(1.0, 0.1, 0.0));
+		viewer.data().add_points(V.row(Sample(i)), Eigen::RowVector3d(1.0, 0.1, 0.0));
 	}
 }
 
 /* Visualize basis */
-void visualizeBasis(igl::viewer::Viewer &viewer, const Eigen::MatrixXd &V, const Eigen::MatrixXi &F, const Eigen::SparseMatrix<double> &U, const int &basisID)
+void visualizeBasis(igl::opengl::glfw::Viewer &viewer, const Eigen::MatrixXd &V, const Eigen::MatrixXi &F, const Eigen::SparseMatrix<double> &U, const int &basisID)
 {
-	viewer.data.clear();
-	viewer.data.set_mesh(V, F);
+	viewer.data().clear();
+	viewer.data().set_mesh(V, F);
 
 	// Map the basis value at particular index to the jet coloring scheme
 	Eigen::MatrixXd		vColor;
 	Eigen::VectorXd		Z;
 	Z					= U.col(basisID);
 	igl::jet(Z, true, vColor);
-	viewer.data.set_colors(vColor);
+	viewer.data().set_colors(vColor);
 }
 
 /* Visualize Approximated Eigenvector */
-void visualizeEigenvector(igl::viewer::Viewer &viewer, const Eigen::MatrixXd &V, const Eigen::MatrixXi &F, const Eigen::SparseMatrix<double> &U, const Eigen::MatrixXd &LDEigVec, const int &eigenID)
+void visualizeEigenvector(igl::opengl::glfw::Viewer &viewer, const Eigen::MatrixXd &V, const Eigen::MatrixXi &F, const Eigen::SparseMatrix<double> &U, const Eigen::MatrixXd &LDEigVec, const int &eigenID)
 {
-	viewer.data.clear();
-	viewer.data.set_mesh(V, F);
+	viewer.data().clear();
+	viewer.data().set_mesh(V, F);
 
 	// Some validation, ensuring no out-of-bound indices
 	if(eigenID<0 || eigenID>LDEigVec.cols()-1) { 
@@ -48,5 +48,5 @@ void visualizeEigenvector(igl::viewer::Viewer &viewer, const Eigen::MatrixXd &V,
 	}else {
 		igl::jet(Z, true, vColor);
 	}
-	viewer.data.set_colors(vColor);
+	viewer.data().set_colors(vColor);
 }

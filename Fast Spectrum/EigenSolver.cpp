@@ -116,111 +116,111 @@ void computeEigenGPU(Eigen::SparseMatrix<double> &S_, Eigen::SparseMatrix<double
 }
 
 /* Computing Eigenstructure in Matlab */
-void computeEigenMatlab(Eigen::SparseMatrix<double> &S, Eigen::SparseMatrix<double> &M, Eigen::MatrixXd &EigVec, Eigen::VectorXd &EigVal)
-{
-	printf("Size of S = %dx%d\n", S.rows(), S.cols());
-	using namespace matlab::engine;
-	Engine *ep;
-	mxArray *MM = NULL, *MS = NULL, *result = NULL, *eigVecResult, *nEigs;
-
-	chrono::high_resolution_clock::time_point	t1, t2, t3, t4;
-	chrono::duration<double>					time_span, ts2;
-
-	const int NNZ_S = S.nonZeros();
-	const int NNZ_M = M.nonZeros();
-	double *eigVal, *eigVec;
-
-	// Allocate memory for S and M (sparse representation)
-	double	*srs = (double*)malloc(NNZ_S * sizeof(double));
-	mwIndex *irs = (mwIndex*)malloc(NNZ_S * sizeof(mwIndex));
-	mwIndex *jcs = (mwIndex*)malloc((S.cols() + 1) * sizeof(mwIndex));
-
-	double	*srm = (double*)malloc(NNZ_M * sizeof(double));
-	mwIndex *irm = (mwIndex*)malloc(NNZ_M * sizeof(mwIndex));
-	mwIndex *jcm = (mwIndex*)malloc((M.cols() + 1) * sizeof(mwIndex));
-
-	// Bind MM with M, and MS with S
-	MS = mxCreateSparse(S.rows(), S.cols(), NNZ_S, mxREAL);
-	srs = mxGetPr(MS);
-	irs = mxGetIr(MS);
-	jcs = mxGetJc(MS);
-
-	MM = mxCreateSparse(M.rows(), M.cols(), NNZ_M, mxREAL);
-	srm = mxGetPr(MM);
-	irm = mxGetIr(MM);
-	jcm = mxGetJc(MM);
-
-	// Setting initial variable value
-	int nnzSCounter = 0;
-	int nnzMCounter = 0;
-
-	t1 = chrono::high_resolution_clock::now();
-
-	// Getting matrix S
-	jcs[0] = nnzSCounter;
-	for (int i = 0; i < S.outerSize(); i++) {
-		for (Eigen::SparseMatrix<double>::InnerIterator it(S, i); it; ++it) {
-			srs[nnzSCounter] = it.value();
-			irs[nnzSCounter] = it.row();
-			nnzSCounter++;
-		}
-		jcs[i + 1] = nnzSCounter;
-	}
-
-	// Getting matrix M
-	jcm[0] = nnzMCounter;
-	for (int i = 0; i < M.outerSize(); i++) {
-		for (Eigen::SparseMatrix<double>::InnerIterator it(M, i); it; ++it) {
-			srm[nnzMCounter] = it.value();
-			irm[nnzMCounter] = it.row();
-			nnzMCounter++;
-		}
-		jcm[i + 1] = nnzMCounter;
-	}
-
-	// Start Matlab Engine
-	ep = engOpen(NULL);
-	if (!(ep = engOpen(""))) {
-		fprintf(stderr, "\nCan't start MATLAB engine\n");
-		cout << "CANNOT START MATLAB " << endl;
-	}
-	else {
-		cout << "MATLAB STARTS. OH YEAH!!!" << endl;
-	}
-
-	// Compute Eigenvalue in Matlab
-	int NUM_EIGEN = 50;
-
-	engPutVariable(ep, "MS", MS);
-	engPutVariable(ep, "MM", MM);
-
-	t3 = chrono::high_resolution_clock::now();
-	engEvalString(ep, "[LDEigVec,LDEigVal]=eigs(MS,MM,50,'smallestreal');");
-	engEvalString(ep, "LDEigVal=diag(LDEigVal);");
-	engEvalString(ep, "hold on; plot(1:50,LDEigVal(1:50),'LineWidth',1.5);"); // has to do it this way for "correct" plot
-	t4 = chrono::high_resolution_clock::now();
-
-	//engEvalString(ep, "save('D:/4_SCHOOL/TU Delft/Research/Projects/EigenTrial/MATLAB Implementation/Data/Dino_LDEigVec_15_5000','LDEigVec');");
-	
-	result = engGetVariable(ep, "LDEigVal");
-	eigVal = (double*)malloc(NUM_EIGEN * sizeof(double));
-	memcpy((void *)eigVal, (void *)mxGetPr(result), NUM_EIGEN * sizeof(double));
-
-	eigVecResult = engGetVariable(ep, "LDEigVec");
-	eigVec = (double*)malloc(M.rows() * NUM_EIGEN * sizeof(double));
-	memcpy((void *)eigVec, (void *)mxGetPr(eigVecResult), M.rows() * NUM_EIGEN * sizeof(double));
-
-	EigVal = Eigen::Map<Eigen::VectorXd>(eigVal, NUM_EIGEN);
-	EigVec = Eigen::Map<Eigen::MatrixXd, 0, Eigen::OuterStride<>>(eigVec, M.rows(), NUM_EIGEN, Eigen::OuterStride<>(M.rows()));
-
-	t2 = chrono::high_resolution_clock::now();
-	time_span = chrono::duration_cast<chrono::duration<double>>(t2 - t1);
-	ts2 = chrono::duration_cast<chrono::duration<double>>(t4 - t3);
-	printf("Time to compute %d first eigenstructure is %.5f. \n", NUM_EIGEN, time_span);
-	printf("Time to compute %d first eigenstructure (in MATLAB ONLY) is %.5f. \n", NUM_EIGEN, ts2);
-
-	// Testing out
-	//printf("Check orthogonality: \n Equal=%.5f, Not-Equal=%.5f\n", EigVec.col(0).transpose()*M*EigVec.col(0), EigVec.col(0).transpose()*M*EigVec.col(50));
-	//cout << "Eigen Vectors" << endl << EigVec.block(0, 0, 2, 10) << endl;
-	printf("EigenVector dimension: %dx%d\n", EigVec.rows(), EigVec.cols());
-}
+//void computeEigenMatlab(Eigen::SparseMatrix<double> &S, Eigen::SparseMatrix<double> &M, Eigen::MatrixXd &EigVec, Eigen::VectorXd &EigVal)
+//{
+//	printf("Size of S = %dx%d\n", S.rows(), S.cols());
+//	//using namespace matlab::engine;
+//	Engine *ep;
+//	mxArray *MM = NULL, *MS = NULL, *result = NULL, *eigVecResult, *nEigs;
+//
+//	chrono::high_resolution_clock::time_point	t1, t2, t3, t4;
+//	chrono::duration<double>					time_span, ts2;
+//
+//	const int NNZ_S = S.nonZeros();
+//	const int NNZ_M = M.nonZeros();
+//	double *eigVal, *eigVec;
+//
+//	// Allocate memory for S and M (sparse representation)
+//	double	*srs = (double*)malloc(NNZ_S * sizeof(double));
+//	mwIndex *irs = (mwIndex*)malloc(NNZ_S * sizeof(mwIndex));
+//	mwIndex *jcs = (mwIndex*)malloc((S.cols() + 1) * sizeof(mwIndex));
+//
+//	double	*srm = (double*)malloc(NNZ_M * sizeof(double));
+//	mwIndex *irm = (mwIndex*)malloc(NNZ_M * sizeof(mwIndex));
+//	mwIndex *jcm = (mwIndex*)malloc((M.cols() + 1) * sizeof(mwIndex));
+//
+//	// Bind MM with M, and MS with S
+//	MS = mxCreateSparse(S.rows(), S.cols(), NNZ_S, mxREAL);
+//	srs = mxGetPr(MS);
+//	irs = mxGetIr(MS);
+//	jcs = mxGetJc(MS);
+//
+//	MM = mxCreateSparse(M.rows(), M.cols(), NNZ_M, mxREAL);
+//	srm = mxGetPr(MM);
+//	irm = mxGetIr(MM);
+//	jcm = mxGetJc(MM);
+//
+//	// Setting initial variable value
+//	int nnzSCounter = 0;
+//	int nnzMCounter = 0;
+//
+//	t1 = chrono::high_resolution_clock::now();
+//
+//	// Getting matrix S
+//	jcs[0] = nnzSCounter;
+//	for (int i = 0; i < S.outerSize(); i++) {
+//		for (Eigen::SparseMatrix<double>::InnerIterator it(S, i); it; ++it) {
+//			srs[nnzSCounter] = it.value();
+//			irs[nnzSCounter] = it.row();
+//			nnzSCounter++;
+//		}
+//		jcs[i + 1] = nnzSCounter;
+//	}
+//
+//	// Getting matrix M
+//	jcm[0] = nnzMCounter;
+//	for (int i = 0; i < M.outerSize(); i++) {
+//		for (Eigen::SparseMatrix<double>::InnerIterator it(M, i); it; ++it) {
+//			srm[nnzMCounter] = it.value();
+//			irm[nnzMCounter] = it.row();
+//			nnzMCounter++;
+//		}
+//		jcm[i + 1] = nnzMCounter;
+//	}
+//
+//	// Start Matlab Engine
+//	ep = engOpen(NULL);
+//	if (!(ep = engOpen(""))) {
+//		fprintf(stderr, "\nCan't start MATLAB engine\n");
+//		cout << "CANNOT START MATLAB " << endl;
+//	}
+//	else {
+//		cout << "MATLAB STARTS. OH YEAH!!!" << endl;
+//	}
+//
+//	// Compute Eigenvalue in Matlab
+//	int NUM_EIGEN = 50;
+//
+//	engPutVariable(ep, "MS", MS);
+//	engPutVariable(ep, "MM", MM);
+//
+//	t3 = chrono::high_resolution_clock::now();
+//	engEvalString(ep, "[LDEigVec,LDEigVal]=eigs(MS,MM,50,'smallestreal');");
+//	engEvalString(ep, "LDEigVal=diag(LDEigVal);");
+//	engEvalString(ep, "hold on; plot(1:50,LDEigVal(1:50),'LineWidth',1.5);"); // has to do it this way for "correct" plot
+//	t4 = chrono::high_resolution_clock::now();
+//
+//	//engEvalString(ep, "save('D:/4_SCHOOL/TU Delft/Research/Projects/EigenTrial/MATLAB Implementation/Data/Dino_LDEigVec_15_5000','LDEigVec');");
+//	
+//	result = engGetVariable(ep, "LDEigVal");
+//	eigVal = (double*)malloc(NUM_EIGEN * sizeof(double));
+//	memcpy((void *)eigVal, (void *)mxGetPr(result), NUM_EIGEN * sizeof(double));
+//
+//	eigVecResult = engGetVariable(ep, "LDEigVec");
+//	eigVec = (double*)malloc(M.rows() * NUM_EIGEN * sizeof(double));
+//	memcpy((void *)eigVec, (void *)mxGetPr(eigVecResult), M.rows() * NUM_EIGEN * sizeof(double));
+//
+//	EigVal = Eigen::Map<Eigen::VectorXd>(eigVal, NUM_EIGEN);
+//	EigVec = Eigen::Map<Eigen::MatrixXd, 0, Eigen::OuterStride<>>(eigVec, M.rows(), NUM_EIGEN, Eigen::OuterStride<>(M.rows()));
+//
+//	t2 = chrono::high_resolution_clock::now();
+//	time_span = chrono::duration_cast<chrono::duration<double>>(t2 - t1);
+//	ts2 = chrono::duration_cast<chrono::duration<double>>(t4 - t3);
+//	printf("Time to compute %d first eigenstructure is %.5f. \n", NUM_EIGEN, time_span);
+//	printf("Time to compute %d first eigenstructure (in MATLAB ONLY) is %.5f. \n", NUM_EIGEN, ts2);
+//
+//	// Testing out
+//	//printf("Check orthogonality: \n Equal=%.5f, Not-Equal=%.5f\n", EigVec.col(0).transpose()*M*EigVec.col(0), EigVec.col(0).transpose()*M*EigVec.col(50));
+//	//cout << "Eigen Vectors" << endl << EigVec.block(0, 0, 2, 10) << endl;
+//	printf("EigenVector dimension: %dx%d\n", EigVec.rows(), EigVec.cols());
+//}

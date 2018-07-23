@@ -13,20 +13,19 @@ Eigen::MatrixXi					F;
 Eigen::VectorXd					LDEigVal, REigVal;
 Eigen::VectorXi					Sample;
 vector<set<int>>				AdM;
-igl::viewer::Viewer				viewer;
+igl::opengl::glfw::Viewer		viewer;
 double							maxNeighDist, avgEdgeLength;
 int								sampleSize;
-MyMesh							opMeshData;
 
 /* For Visulization/Trivial stuffs */
 int				eigenToShow = 0;
 
 /* [FUNCTIONS DECLARATION] */
-void readMesh(const string &meshFile, Eigen::MatrixXd &V, Eigen::MatrixXi &F, MyMesh &opMeshData);
+void readMesh(const string &meshFile, Eigen::MatrixXd &V, Eigen::MatrixXi &F);
 void constructLaplacianMatrix(Eigen::MatrixXd &V, Eigen::MatrixXi &F, Eigen::SparseMatrix<double> &S, Eigen::SparseMatrix<double> &M,
 	vector<set<int>> &AdM, double &avgEdgeLength, Eigen::SparseMatrix<double> &DistanceTableSpM);
-void constructSample(const Eigen::MatrixXd &V, igl::viewer::Viewer &viewer, vector<set<int>> &AdM, int &sampleSize, Eigen::VectorXi &Sample);
-void constructBasis(const Eigen::MatrixXd &V, MyMesh &opMeshData, const Eigen::VectorXi &Sample, const vector<set<int>> AdM, const Eigen::SparseMatrix<double> DistanceTableSpM,
+void constructSample(const Eigen::MatrixXd &V, igl::opengl::glfw::Viewer &viewer, vector<set<int>> &AdM, int &sampleSize, Eigen::VectorXi &Sample);
+void constructBasis(const Eigen::MatrixXd &V, Eigen::MatrixXi &T, const Eigen::VectorXi &Sample, const vector<set<int>> AdM, const Eigen::SparseMatrix<double> DistanceTableSpM,
 	const int sampleSize, const double maxNeighDist, Eigen::SparseMatrix<double> &U);
 void formPartitionOfUnity(Eigen::SparseMatrix<double> &U);
 void computeEigenPair(Eigen::SparseMatrix<double> &S_, Eigen::SparseMatrix<double> &M_, Eigen::MatrixXd &LDEigVec, Eigen::VectorXd &LDEigVal);
@@ -46,7 +45,7 @@ int main(int argc, char *argv[])
 	// [1]		INITIALIZATION
 	// [1.1]	Reading the Mesh
 	string meshFile = "../Models/AIM894_Chinese Dragon/894_Chinese Dragon.obj";
-	readMesh(meshFile, V, F, opMeshData);
+	readMesh(meshFile, V, F);
 	
 	// [1.2]	Constructing Laplacian Matrices (Stiffness and Mass-Matrix)
 	constructLaplacianMatrix(V, F, S, M, AdM, avgEdgeLength, DistanceTableSpM);
@@ -57,7 +56,7 @@ int main(int argc, char *argv[])
 	// [3]		BASIS CONSTRUCTION
 	double	distRatio	= sqrt(pow(0.7, 2) + pow(0.7, 2));
 	maxNeighDist		= distRatio * sqrt((double)V.rows() / (double)Sample.size()) * avgEdgeLength;
-	constructBasis(V, opMeshData, Sample, AdM, DistanceTableSpM, sampleSize, maxNeighDist, U);
+	constructBasis(V, F, Sample, AdM, DistanceTableSpM, sampleSize, maxNeighDist, U);
 	formPartitionOfUnity(U);
 
 	// [4]		LOW-DIM PROBLEM
@@ -68,7 +67,7 @@ int main(int argc, char *argv[])
 	computeEigenPair(S_, M_, LDEigVec, LDEigVal); 
 
 	/* User interaction via keyboard */
-	const auto &key_down = [](igl::viewer::Viewer &viewer, unsigned char key, int mod)->bool
+	const auto &key_down = [](igl::opengl::glfw::Viewer &viewer, unsigned char key, int mod)->bool
 	{
 		int basisID = rand() % Sample.size();
 
@@ -95,35 +94,32 @@ int main(int argc, char *argv[])
 			return false;
 		}
 		//viewer.data.set_vertices(V);
-		viewer.data.compute_normals();
+		viewer.data().compute_normals();
 		viewer.core.align_camera_center(V, F);
 		return true;
 	};
-	viewer.callback_init = [&](igl::viewer::Viewer &viewer){return false;};
-	viewer.data.set_mesh(V, F);
+	viewer.callback_init = [&](igl::opengl::glfw::Viewer &viewer){return false;};
+	viewer.data().set_mesh(V, F);
 	viewer.callback_key_down		= key_down;
 
 	Eigen::Vector4f bgCol(1.0, 1.0, 1.0, 1.0);
 	viewer.core.background_color	= bgCol;
-	viewer.core.point_size			= 10.0f;
-	viewer.core.line_width			= 0.5f;
-	
+	viewer.data().point_size = 5.0f;
+	viewer.data().line_width = 0.5f; 	
 	return viewer.launch();
 }
 
 /* [Read mesh model from file] */
-void readMesh(const string &meshFile, Eigen::MatrixXd &V, Eigen::MatrixXi &F, MyMesh &opMeshData)
+void readMesh(const string &meshFile, Eigen::MatrixXd &V, Eigen::MatrixXi &F)
 {
 	V.resize(0, 0);
 	F.resize(0, 0);
 
 	if (meshFile.substr(meshFile.find_last_of(".") + 1) == "off") {
 		igl::readOFF(meshFile, V, F);
-		OpenMesh::IO::read_mesh(opMeshData, meshFile);
 	}
 	else if (meshFile.substr(meshFile.find_last_of(".") + 1) == "obj") {
 		igl::readOBJ(meshFile, V, F);
-		OpenMesh::IO::read_mesh(opMeshData, meshFile);
 	}
 	else {
 		cout << "Error! File type can be either .OFF or .OBJ only." << endl;
@@ -155,7 +151,7 @@ void constructLaplacianMatrix(Eigen::MatrixXd &V, Eigen::MatrixXi &F, Eigen::Spa
 }
 
 /* [Construct samples for the subspace] */
-void constructSample(const Eigen::MatrixXd &V, igl::viewer::Viewer &viewer, vector<set<int>> &AdM, int &sampleSize, Eigen::VectorXi &Sample)
+void constructSample(const Eigen::MatrixXd &V, igl::opengl::glfw::Viewer &viewer, vector<set<int>> &AdM, int &sampleSize, Eigen::VectorXi &Sample)
 {
 	sampleSize = 1000;
 	int nBox = 13; 
@@ -168,7 +164,7 @@ void constructSample(const Eigen::MatrixXd &V, igl::viewer::Viewer &viewer, vect
 }
 
 /* [Construct Basis Matrix] */
-void constructBasis(const Eigen::MatrixXd &V, MyMesh &opMeshData, const Eigen::VectorXi &Sample, const vector<set<int>> AdM, const Eigen::SparseMatrix<double> DistanceTableSpM,
+void constructBasis(const Eigen::MatrixXd &V, Eigen::MatrixXi &T, const Eigen::VectorXi &Sample, const vector<set<int>> AdM, const Eigen::SparseMatrix<double> DistanceTableSpM,
 	const int sampleSize, const double maxNeighDist, Eigen::SparseMatrix<double> &U)
 {
 	U.resize(V.rows(), Sample.size());
@@ -221,9 +217,6 @@ void constructBasis(const Eigen::MatrixXd &V, MyMesh &opMeshData, const Eigen::V
 			if (i >= sampleSize) break;
 			/* Dijkstra basis function */
 			ComputeDijkstraCompact(V, Sample(i), AdM, D, aCoef, bCoef, maxNeighDist, i, sampleSize, UTriplet[tid], elementCounter[tid]);			
-
-			/* STVD Basis Function */
-			//ComputeSTVDBasis(viewer, opMeshData, V, Sample(i), AdM, DistanceTableSpM, D, aCoef, bCoef, maxNeighDist, i, sampleSize, UTriplet[tid]);
 		}
 	} /* End of OpenMP parallelization */
 
@@ -243,7 +236,6 @@ void constructBasis(const Eigen::MatrixXd &V, MyMesh &opMeshData, const Eigen::V
 		}
 		std::copy(UTriplet[j].begin(), UTriplet[j].end(), AllTriplet.begin() + tripSize);
 	}
-
 	U.setFromTriplets(AllTriplet.begin(), AllTriplet.end());
 }
 
@@ -277,5 +269,4 @@ void formPartitionOfUnity(Eigen::SparseMatrix<double> &U)
 void computeEigenPair(Eigen::SparseMatrix<double> &S_, Eigen::SparseMatrix<double> &M_, Eigen::MatrixXd &LDEigVec, Eigen::VectorXd &LDEigVal)
 {
 	computeEigenGPU(S_, M_, LDEigVec, LDEigVal);
-	//computeEigenMatlab(S_, M_, LDEigVec, LDEigVal);
 }
