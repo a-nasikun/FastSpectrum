@@ -32,6 +32,8 @@ link_directories(${GLFW_LIBS_DIR}
 #Stating what files to include in the project				 
 add_executable(${PROJECT_NAME}
 	Main.cpp 
+	FastSpectrum.h
+	FastSpectrum.cpp
 	Basis.h 
 	Basis.cpp 
 	EigenSolver.h 

@@ -95,7 +95,7 @@ void constructVoxelSample(igl::opengl::glfw::Viewer &viewer, const Eigen::Matrix
 }
 
 /* Construct Poisson-Disk Sample */
-void constructPoissonDiskSample(igl::opengl::glfw::Viewer &viewer, const Eigen::MatrixXd &V, const int &n, const double &avgEdgeLength, Eigen::VectorXi &Sample)
+void constructPoissonDiskSample(const Eigen::MatrixXd &V, const int &n, const double &avgEdgeLength, Eigen::VectorXi &Sample)
 {
 	/* Initialization of computing boundary of each box	 */
 	Eigen::Vector3d minV(V.col(0).minCoeff(), V.col(1).minCoeff(), V.col(2).minCoeff());
