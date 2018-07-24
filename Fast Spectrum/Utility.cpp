@@ -7,6 +7,7 @@
 ** Output:
 **		AM: Adjacency matrix */
 void initiateAdM(Eigen::MatrixXd &V, Eigen::MatrixXi &F, vector<set<int>> &AM) {
+	AM.clear();
 	for (int i = 0; i < V.rows(); i++) {
 		set<int>		emptySet;
 		AM.insert(AM.end(), emptySet);
@@ -32,6 +33,7 @@ void initiateDistTableSpM(Eigen::MatrixXd &V, const vector<set<int>> &AM, Eigen:
 {
 	std::vector<Eigen::Triplet<double>> locTrip;
 	locTrip.reserve(V.rows());
+	
 	DistanceTable.resize(V.rows(), V.rows());
 	DistanceTable.reserve(V.rows() * 6 * 2);
 
@@ -42,7 +44,6 @@ void initiateDistTableSpM(Eigen::MatrixXd &V, const vector<set<int>> &AM, Eigen:
 			locTrip.push_back(Eigen::Triplet<double>(i, *it, distAB));
 		}
 	}
-
 	DistanceTable.setFromTriplets(locTrip.begin(), locTrip.end());
 }
 

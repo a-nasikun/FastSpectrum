@@ -29,11 +29,10 @@ public:
 	void constructSample(const Eigen::MatrixXd &V, vector<set<int>> &AdM, int &sampleSize, Eigen::VectorXi &Sample);
 	void constructBasis(const Eigen::MatrixXd &V, Eigen::MatrixXi &T, const Eigen::VectorXi &Sample, const vector<set<int>> AdM, const Eigen::SparseMatrix<double> DistanceTableSpM,
 		const int sampleSize, const double maxNeighDist, Eigen::SparseMatrix<double> &Basis);
-	void formPartitionOfUnity(Eigen::SparseMatrix<double> &Basis);
-	void computeEigenPair(Eigen::SparseMatrix<double> &S_, Eigen::SparseMatrix<double> &M_, Eigen::MatrixXd &LDEigVec, Eigen::VectorXd &LDEigVal);
+	
 
 private:
-	/* [Definitions of Global Variables] */
+	/* [CLAS VARIABLES] */
 	Eigen::SparseMatrix<double>		S, M, S_, M_, Basis, DistanceTableSpM;
 	Eigen::MatrixXd					V, reducedEigVects;
 	Eigen::MatrixXi					F;
@@ -43,6 +42,10 @@ private:
 	double							maxNeighDist, avgEdgeLength;
 	int								sampleSize;
 
+	/* [SUPPLEMENTARY FUNCTIONS] */
+	void formPartitionOfUnity(Eigen::SparseMatrix<double> &Basis);
+	void computeEigenPair(Eigen::SparseMatrix<double> &S_, Eigen::SparseMatrix<double> &M_, Eigen::MatrixXd &LDEigVec, Eigen::VectorXd &LDEigVal);
+	void normalizeReducedEigVects(const Eigen::SparseMatrix<double> &U, const Eigen::SparseMatrix<double> &M, Eigen::MatrixXd &LDEigVec);
 };
 
 

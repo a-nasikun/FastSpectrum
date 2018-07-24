@@ -34,8 +34,12 @@ int main(int argc, char *argv[])
 
 	/* VISUALIZATION */
 	// Variables For Viewer visualization
-	bool boolDiffDist = false, boolMeshFilter = false, boolVarOperator = false;
-	float menuWindowLeft = 0.0f, menuWindowWidth = 200.0f;
+	bool	boolDiffDist		= false, 
+			boolMeshFilter		= false, 
+			boolVarOperator		= false;
+	float	menuWindowLeft		= 0.f,
+			menuWindowWidth		= 200.f,
+			menuWindowHeight	= 500.f;
 
 	int basisToShow = 0;
 	int eigToShow = 0;
@@ -73,23 +77,34 @@ int main(int argc, char *argv[])
 		// MAIN WINDOW 	
 		{
 			ImGui::SetNextWindowPos(ImVec2(menuWindowLeft * menu.menu_scaling(), 10), ImGuiSetCond_FirstUseEver);
-			ImGui::SetNextWindowSize(ImVec2(menuWindowWidth, 220), ImGuiSetCond_FirstUseEver);
+			ImGui::SetNextWindowSize(ImVec2(menuWindowWidth, menuWindowHeight), ImGuiSetCond_FirstUseEver);
+			//ImGui::SetNextWindowSize(ImGui::GetIO().DisplaySize, ImGuiSetCond_Always);
 			ImGui::Begin(
 				"Fast Spectrum", nullptr,
 				ImGuiWindowFlags_NoSavedSettings
 			);
-			// Mesh
-			if (ImGui::CollapsingHeader("Mesh", ImGuiTreeNodeFlags_DefaultOpen))
+
+			float w = ImGui::GetContentRegionAvailWidth();
+			float p = ImGui::GetStyle().FramePadding.x;
+
+			// Main Algorithm
+			if (ImGui::CollapsingHeader("Executing Algorithm", ImGuiTreeNodeFlags_DefaultOpen))
 			{
-				float w = ImGui::GetContentRegionAvailWidth();
-				float p = ImGui::GetStyle().FramePadding.x;
+				
 				if (ImGui::Button("Load##Mesh", ImVec2((w) / 2.f, 0)))
 				{
 					// Load mesh + display the correct mesh
 					viewer.open_dialog_load_mesh();
+					//for (int i = 0; i < viewer.data_list.size(); i++){
+					//	cout << "Data " << i << endl;
+					//}
 					viewer.data() = viewer.data_list.at(0);
+					V.resize(viewer.data().V.rows(), viewer.data().V.cols());
+					F.resize(viewer.data().F.rows(), viewer.data().F.cols());
 					V = viewer.data().V;
 					F = viewer.data().F;
+
+					viewer.data().show_lines = false;					
 
 					printf("Number of vertices: %d\n", V.rows());
 				}
@@ -130,87 +145,72 @@ int main(int argc, char *argv[])
 					}
 				}
 			}
+			if (ImGui::CollapsingHeader("Visualization##FastSpectrum", ImGuiTreeNodeFlags_DefaultOpen))
+			{
+				/* For Sampling */
+				if (ImGui::Button("Show Samples", ImVec2((w), 0))) {
+					//boolShowSamples = !boolShowSamples;
+					//if (boolShowSamples) {
+					//	for (int i = 0; i < Sample.size(); i++) {
+					//		viewer.data().add_points(V.row(Sample(i)), Eigen::RowVector3d(0.7, 0.1, 0.1));
+					//	}
+					//}
+				}
+
+				/* For Basis */
+
+				ImGui::Text("Show Basis", ImVec2((w - 4.0f*p) / 2.f, 0));
+				ImGui::SameLine(0, p);
+				if (ImGui::Button("-##Basis", ImVec2((w - p) / 6.f, 0))) {
+					//basisToShow = max(basisToShow - 1, 0);
+					//Z = U.col(basisToShow);
+					//igl::jet(Z, true, vColor);
+					//viewer.data().set_colors(vColor);
+				}
+
+				ImGui::SameLine(0, p);
+
+				if (ImGui::Button("+##Basis", ImVec2((w - p) / 6.f, 0))) {
+					//basisToShow = min(basisToShow + 1, (int)Sample.size());
+					//Z = U.col(basisToShow);
+					//igl::jet(Z, true, vColor);
+					//viewer.data().set_colors(vColor);
+				}
+				ImGui::SameLine(0, p);
+				if (ImGui::Button("Rand", ImVec2((w - p) / 6.f, 0))) {
+					//Z = U.col(rand() % Sample.size());
+					//igl::jet(Z, true, vColor);
+					//viewer.data().set_colors(vColor);
+				}
+				/* For Eigenvectors */
+				ImGui::Text("Show Eigenvectors", ImVec2((w - 4.0f*p) / 2.f, 0));
+
+				ImGui::SameLine(0, p);
+				if (ImGui::Button("-##EigVec", ImVec2((w - p) / 4.f, 0))) {
+					eigToShow = max(eigToShow - 1, 0);
+					Eigen::SparseMatrix<double> U;
+					fastSpectrum.getFunctionBasis(U);
+					Z = U * redEigVects.col(eigToShow);
+					igl::jet(Z, true, vColor);
+					viewer.data().set_colors(vColor);
+				}
+
+				ImGui::SameLine(0, p);
+				if (ImGui::Button("+##EigVec", ImVec2((w - p) / 4.f, 0))) {
+					eigToShow = min(eigToShow + 1, (int)redEigVals.size());
+					Eigen::SparseMatrix<double> U;
+					fastSpectrum.getFunctionBasis(U);
+					Z = U * redEigVects.col(eigToShow);
+					igl::jet(Z, true, vColor);
+					viewer.data().set_colors(vColor);
+				}
+
+				/* Overlays */
+				ImGui::Checkbox("Wireframe", &(viewer.data().show_lines));
+				ImGui::Checkbox("Fill Faces", &(viewer.data().show_faces));
+			}
 			ImGui::End();
-		}
-
-		// VISUALIZATION WINDOW 
-		{
-			// Define next window position + size
-			ImGui::SetNextWindowPos(ImVec2(menuWindowLeft * menu.menu_scaling(), 230), ImGuiSetCond_FirstUseEver);
-			ImGui::SetNextWindowSize(ImVec2(menuWindowWidth, 100), ImGuiSetCond_FirstUseEver);
-			ImGui::Begin(
-				"Visualization", nullptr,
-				ImGuiWindowFlags_NoSavedSettings
-			);
-			// Mesh
-
-			float w = ImGui::GetContentRegionAvailWidth();
-			float p = ImGui::GetStyle().FramePadding.x;
-
-			/* For Sampling */
-			if (ImGui::Button("Show Samples", ImVec2((w), 0))) {
-				//boolShowSamples = !boolShowSamples;
-				//if (boolShowSamples) {
-				//	for (int i = 0; i < Sample.size(); i++) {
-				//		viewer.data().add_points(V.row(Sample(i)), Eigen::RowVector3d(0.7, 0.1, 0.1));
-				//	}
-				//}
-			}
-
-			/* For Basis */
-
-			ImGui::Text("Show Basis", ImVec2((w - 4.0f*p) / 2.f, 0));
-			ImGui::SameLine(0, p);
-			if (ImGui::Button("-##Basis", ImVec2((w - p) / 6.f, 0))) {
-				//basisToShow = max(basisToShow - 1, 0);
-				//Z = U.col(basisToShow);
-				//igl::jet(Z, true, vColor);
-				//viewer.data().set_colors(vColor);
-			}
-
-			ImGui::SameLine(0, p);
-
-			if (ImGui::Button("+##Basis", ImVec2((w - p) / 6.f, 0))) {
-				//basisToShow = min(basisToShow + 1, (int)Sample.size());
-				//Z = U.col(basisToShow);
-				//igl::jet(Z, true, vColor);
-				//viewer.data().set_colors(vColor);
-			}
-			ImGui::SameLine(0, p);
-			if (ImGui::Button("Rand", ImVec2((w - p) / 6.f, 0))) {
-				//Z = U.col(rand() % Sample.size());
-				//igl::jet(Z, true, vColor);
-				//viewer.data().set_colors(vColor);
-			}
-			/* For Eigenvectors */
-			ImGui::Text("Show Eigenvectors", ImVec2((w - 4.0f*p) / 2.f, 0));
-
-			ImGui::SameLine(0, p);
-			if (ImGui::Button("-##EigVec", ImVec2((w - p) / 4.f, 0))) {
-				eigToShow = max(eigToShow - 1, 0);
-				Eigen::SparseMatrix<double> U;
-				fastSpectrum.getFunctionBasis(U);
-				Z = U * redEigVects.col(eigToShow);
-				igl::jet(Z, true, vColor);
-				viewer.data().set_colors(vColor);
-			}
-
-			ImGui::SameLine(0, p);
-			if (ImGui::Button("+##EigVec", ImVec2((w - p) / 4.f, 0))) {
-				eigToShow = min(eigToShow + 1, (int)redEigVals.size());
-				Eigen::SparseMatrix<double> U;
-				fastSpectrum.getFunctionBasis(U);
-				Z = U * redEigVects.col(eigToShow);
-				igl::jet(Z, true, vColor);
-				viewer.data().set_colors(vColor);
-			}
-
-			/* Overlays */
-			ImGui::Checkbox("Wireframe", &(viewer.data().show_lines));
-			ImGui::Checkbox("Fill Faces", &(viewer.data().show_faces));
-
-			ImGui::End();
-		}
+		}		
 	};
 
 

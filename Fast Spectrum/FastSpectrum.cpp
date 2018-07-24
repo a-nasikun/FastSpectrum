@@ -21,6 +21,7 @@ void FastSpectrum::computeEigenPairs(Eigen::MatrixXd &V, Eigen::MatrixXi &F, con
 
 	// [5]		SOLVING LOW-DIM EIGENPROBLEM
 	computeEigenPair(S_, M_, reducedEigVects, reducedEigVals);
+	normalizeReducedEigVects(Basis, M, reducedEigVects);
 }
 
 void FastSpectrum::computeEigenPairs(const string &meshFile, const int &numOfSamples, Eigen::MatrixXd &reducedEigVects, Eigen::VectorXd &reducedEigVals)
@@ -230,4 +231,18 @@ void FastSpectrum::formPartitionOfUnity(Eigen::SparseMatrix<double> &U)
 void FastSpectrum::computeEigenPair(Eigen::SparseMatrix<double> &S_, Eigen::SparseMatrix<double> &M_, Eigen::MatrixXd &LDEigVec, Eigen::VectorXd &LDEigVal)
 {
 	computeEigenGPU(S_, M_, LDEigVec, LDEigVal);
+}
+
+void FastSpectrum::normalizeReducedEigVects(const Eigen::SparseMatrix<double> &U, const Eigen::SparseMatrix<double> &M, Eigen::MatrixXd &LDEigVec)
+{
+	Eigen::SparseMatrix<double> UTMU;
+	UTMU = U.transpose() * M *U;
+	double mNorm;
+	int i = 0;
+
+	for (i = 0; i < LDEigVec.cols(); i++) {
+		mNorm = LDEigVec.col(i).transpose() * UTMU * LDEigVec.col(i);
+		mNorm = (double) 1.0 / sqrt(mNorm);
+		LDEigVec.col(i) = mNorm * LDEigVec.col(i);
+	}
 }
