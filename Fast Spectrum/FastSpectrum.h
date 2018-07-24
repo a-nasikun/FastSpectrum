@@ -16,10 +16,22 @@ public:
 	/* [MAIN FUNCTIONS IN FAST APPROXIMATIONG ALGORITHM] */
 	void computeEigenPairs(Eigen::MatrixXd &V, Eigen::MatrixXi &F, const int &numOfSamples, Eigen::MatrixXd &reducedEigVects, Eigen::VectorXd &reducedEigVals);
 	void computeEigenPairs(const string &meshFile, const int &numOfSamples, Eigen::MatrixXd &reducedEigVects, Eigen::VectorXd &reducedEigVals);
+
+	void constructLaplacianMatrix();
+	void runSampling();
+	void constructBasis();
+	void constructRestrictedProblem();
+	void solveRestrictedProblem();
+	void liftEigenVectors();
+
+	void getV(Eigen::MatrixXd &V);
+	void getF(Eigen::MatrixXi &F);
+	void getSamples(Eigen::VectorXi &Sample);
 	void getFunctionBasis(Eigen::SparseMatrix<double> &U);
+	void getReducedEigVects(Eigen::MatrixXd &reducedEigVects);
 	void getReducedLaplacian();
-	void FastSpectrum::getV(Eigen::MatrixXd &V);
-	void FastSpectrum::getF(Eigen::MatrixXi &F);
+	void setV(const Eigen::MatrixXd &V);
+	void setF(const Eigen::MatrixXi &F);
 
 
 	/* [FUNCTIONS DECLARATION] */
@@ -34,7 +46,7 @@ public:
 private:
 	/* [CLAS VARIABLES] */
 	Eigen::SparseMatrix<double>		S, M, S_, M_, Basis, DistanceTableSpM;
-	Eigen::MatrixXd					V, reducedEigVects;
+	Eigen::MatrixXd					V, reducedEigVects, approxEigVects;
 	Eigen::MatrixXi					F;
 	Eigen::VectorXd					reducedEigVals;
 	Eigen::VectorXi					Sample;

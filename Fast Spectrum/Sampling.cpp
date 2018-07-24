@@ -257,5 +257,5 @@ void constructPoissonDiskSample(const Eigen::MatrixXd &V, const int &n, const do
 	//	viewer.data.add_points(V.row(Sample(i)), Eigen::RowVector3d(1.0, 0.1, 0.0));
 	//}
 
-	printf("It now has %d samples\n", Sample.size());
+	// printf("It now has %d samples\n", Sample.size());
 }

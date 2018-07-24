@@ -37,6 +37,7 @@ add_executable(${PROJECT_NAME}
 	Main.cpp 
 	FastSpectrum.h
 	FastSpectrum.cpp
+	FastSpectrumGUI.h
 	Basis.h 
 	Basis.cpp 
 	EigenSolver.h 
