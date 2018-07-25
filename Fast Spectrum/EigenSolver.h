@@ -2,7 +2,9 @@
 #ifndef EIGEN_SOLVER_H
 #define EIGEN_SOLVER_H
 
-#include "Utility.h"
+//#include "Utility.h"
+
+#include <Eigen/Eigen>
 
 // For CUDA
 #include "cuda_runtime.h"
@@ -10,10 +12,7 @@
 #include "cusolverDn.h"
 #include "cublas_v2.h"
 
-#include <stdio.h> 
-#include <stdlib.h> 
 #include <assert.h> 
-#include <time.h>
 #include <iostream>
 
 using namespace std;

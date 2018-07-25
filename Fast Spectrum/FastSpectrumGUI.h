@@ -6,21 +6,20 @@
 #include <imgui/imgui.h>
 #include <imgui/imgui_demo.cpp>
 #include <imgui/imgui_draw.cpp>
-//#include <imgui_impl_glfw_gl3.h>
-#include <../imgui/imgui_impl_glfw_gl3.h>
-#include <../imgui/imgui_impl_glfw_gl3.cpp>
+#include <imgui_impl_glfw_gl3.h>
+#include <imgui_impl_glfw_gl3.cpp>
 
+#include <igl/igl_inline.h>
 #include <igl/opengl/glfw/Viewer.h>
 #include <igl/opengl/glfw/ViewerPlugin.h>
-#include <igl/igl_inline.h>
 #include <igl/opengl/glfw/imgui/ImGuiMenu.h>
 #include <igl/opengl/glfw/imgui/ImGuiHelpers.h>
 
 #include "FastSpectrum.h"
 
-int basisToShow=0;
-int eigToShow=0;
-bool boolShowSamples = false;
+int		basisToShow=0;
+int		eigToShow=0;
+bool	boolShowSamples = false;
 
 void showMenu(igl::opengl::glfw::Viewer &viewer, igl::opengl::glfw::imgui::ImGuiMenu &menu, FastSpectrum &fastSpectrum) {
 	// MAIN WINDOW 	

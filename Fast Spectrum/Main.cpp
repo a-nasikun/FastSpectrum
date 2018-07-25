@@ -1,5 +1,5 @@
 #include "FastSpectrum.h"
-#include "FastSpectrumGUI.h"
+#include "FastSpectrumGUI.cpp"
 
 /* [MAIN FUNCTION THAT CALLS EVERYTHING ELSE] */
 int main(int argc, char *argv[])

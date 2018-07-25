@@ -39,19 +39,6 @@
 #include <omp.h>
 #include <chrono>
 
-/* [MATLAB] */
-//#include <MatlabDataArray.hpp>
-//#include <MatlabEngine.hpp>
-//#include <tuple>
-//#include "engine.h"
-//#include "mex.h"
-
-/* [CUDA] */
-#include "cuda_runtime.h"
-#include "device_launch_parameters.h"
-#include "cusparse.h"
-#include "cusolverDn.h"
-#include "cusolverSp.h"
 
 using namespace std;
 
