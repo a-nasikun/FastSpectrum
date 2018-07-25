@@ -2,8 +2,8 @@
 #ifndef FAST_SPECTRUM_GUI
 #define FAST_SPECTRUM_GUI
 
-#include <imgui/imgui.cpp>
 #include <imgui/imgui.h>
+#include <imgui/imgui.cpp>
 #include <imgui/imgui_demo.cpp>
 #include <imgui/imgui_draw.cpp>
 #include <imgui_impl_glfw_gl3.h>

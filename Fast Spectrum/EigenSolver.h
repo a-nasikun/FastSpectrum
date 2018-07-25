@@ -2,18 +2,16 @@
 #ifndef EIGEN_SOLVER_H
 #define EIGEN_SOLVER_H
 
-//#include "Utility.h"
+#include <iostream>
+#include <assert.h> 
 
 #include <Eigen/Eigen>
 
 // For CUDA
+#include "cublas_v2.h"
+#include "cusolverDn.h"
 #include "cuda_runtime.h"
 #include "device_launch_parameters.h"
-#include "cusolverDn.h"
-#include "cublas_v2.h"
-
-#include <assert.h> 
-#include <iostream>
 
 using namespace std;
 

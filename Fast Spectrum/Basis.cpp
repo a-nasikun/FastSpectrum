@@ -1,9 +1,7 @@
 #include "Basis.h"
 
-
 /* Data structure for Priority Queue */
-struct VertexPair
-{
+struct VertexPair{
 	int		vId;
 	double	distance;
 	bool	operator> (const VertexPair &ref) const { return distance > ref.distance; }
@@ -41,12 +39,14 @@ void ComputeDijkstraCompact(const Eigen::MatrixXd &V, const int s1, const vector
 		auto const& elem = AdM[vp1.vId];
 		for (auto it = elem.begin(); it != elem.end(); ++it) {
 			double dist;
-			/* Dikjstra: Compute on the fly/online */
+			/* Regular Dikjstra */
 			//VtoVDist(V.row(vp1.vId), V.row(*it), dist);
 			//double tempDist = vp1.distance + dist;
 
-			/* Euclidean Distance */
+			/* Correct distance using Euclidean Distance */
 			double tempDist = (V.row(s1) - V.row(*it)).norm();
+
+			/* updating the distance */
 			if (tempDist < D(*it)) {
 				D(*it) = tempDist;
 				VertexPair vp2{ *it,tempDist };

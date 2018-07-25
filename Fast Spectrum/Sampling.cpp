@@ -1,5 +1,4 @@
 #include "Sampling.h"
-#include "Utility.h"
 
 /* Construct random n number of samples */
 void constructRandomSample(Eigen::VectorXi &Sample, const Eigen::MatrixXd &V, int n)

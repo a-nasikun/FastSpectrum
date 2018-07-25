@@ -2,42 +2,15 @@
 #ifndef UTILITY_H
 #define UTILITY_H
 
-/* [LIBIGL HEADERS] */
-#include <igl/barycenter.h>
-#include <igl/cotmatrix.h>
-#include <igl/doublearea.h>
-#include <igl/grad.h>
-#include <igl/jet.h>
-#include <igl/massmatrix.h>
-#include <igl/per_vertex_normals.h>
-#include <igl/readDMAT.h>
-#include <igl/readOFF.h>
-#include <igl/readOBJ.h>
-#include <igl/repdiag.h>
-#include <igl/invert_diag.h>
-#include <igl/avg_edge_length.h>
-#include <igl/eigs.h>
-#include <igl/isolines.h>
-#include <igl/opengl/glfw/Viewer.h>
-
-/* [STANDARD LIBRARIES] */
-#include <iostream>
-#include <fstream>
 #include <set>
 #include <vector>
-#include <map>
-#include <unordered_map>
-#include <queue>
-#include <time.h>
-#include <random>
-#include <stdlib.h>
 #include <stdio.h>
-#include <string.h>
-#include <algorithm>
+#include <stdlib.h>
+#include <iostream>
 
-/* [ADDITIONAL LIBRARIES] */
-#include <omp.h>
-#include <chrono>
+#include <chrono>				// For quite precise timing, needed (perhaps) in most sub-task
+
+#include <Eigen/Eigen>
 
 using namespace std;
 
@@ -45,7 +18,6 @@ using namespace std;
 void initiateAdM(Eigen::MatrixXd &V, Eigen::MatrixXi &F, vector<set<int>> &AM);
 /* Precompute the distance between a vertex and its neighbor(s), for a bit of speed up */
 void initiateDistTableSpM(Eigen::MatrixXd &V, const vector<set<int>> &AM, Eigen::SparseMatrix<double> &DistanceTable);
-
 
 /* Compute distance between two points */
 void VtoVDist(const Eigen::VectorXd &V1, const Eigen::VectorXd &V2, double &dist);

@@ -2,13 +2,26 @@
 #ifndef FAST_SPECTRUM_H
 #define FAST_SPECTRUM_H
 
+#include "Basis.h"
 #include "Utility.h"
 #include "Sampling.h"
-#include "Basis.h"
 #include "EigenSolver.h"
 #include "Visualization.h"
 
-#define GLEW_STATIC
+/* [LIBIGL HEADERS] */
+#include <igl/jet.h>
+#include <igl/readOFF.h>
+#include <igl/readOBJ.h>
+#include <igl/isolines.h>
+#include <igl/cotmatrix.h>
+#include <igl/doublearea.h>
+#include <igl/massmatrix.h>
+#include <igl/barycenter.h>
+#include <igl/avg_edge_length.h>
+#include <igl/opengl/glfw/Viewer.h>
+
+using namespace std;
+//#define GLEW_STATIC
 
 class FastSpectrum
 {

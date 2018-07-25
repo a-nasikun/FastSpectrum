@@ -2,7 +2,7 @@
 #ifndef VISUALIZATION_H
 #define VISUALIZATION_H
 
-#include "Utility.h"
+#include <igl/opengl/glfw/Viewer.h>
 
 /* Visualize the samples */
 void visualizeSample(igl::opengl::glfw::Viewer &viewer, const Eigen::MatrixXd &V, const Eigen::MatrixXi &F, const Eigen::VectorXi &Sample);

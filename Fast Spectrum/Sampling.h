@@ -2,15 +2,20 @@
 #ifndef SAMPLING_H
 #define SAMPLING_H
 
-#include <igl/opengl/glfw/Viewer.h>
-
-#include <iostream>
 #include <set>
 #include <queue>
 #include <time.h>
 #include <random>
-
 #include <chrono>
+#include <iostream>
+
+#include <igl/opengl/glfw/Viewer.h>
+
+#include "Utility.h"
+
+using namespace std;
+
+//#include "Utility.h"
 
 /* Data structure for box numbering in Poisson-Disk */
 struct BoxStruct{
