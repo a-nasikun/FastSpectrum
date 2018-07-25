@@ -19,16 +19,12 @@ We use **CMake** for easy installation/deployment on your machine, by creating a
 
 1. **Download** required libraries.
    1. Eigen: http://eigen.tuxfamily.org/index.php?title=Main_Page
-   2. LibIGL: http://libigl.github.io/libigl/
-   3. Matlab: https://nl.mathworks.com/products/matlab.html
-   4. OpenMesh: https://www.openmesh.org/
+   2. LibIGL: http://libigl.github.io/libigl/ (I'm using the version with commit ID=274dc2de4535e7a91aac782d088c0ee14c6d3f1e) 
    5. GLFW: http://www.glfw.org/download.html   
    6. CUDA (with cuSolver): https://developer.nvidia.com/cuda-zone
 2. Set **environment variables** related to those libraries
    1. EIGEN_DIR = /path/to/eigen/main/directory
    2. IGL_DIR = /path/to/libigl/main/directory
-   3. MATLAB_DIR = C/Program Files/Matlab/**yourVersion**/extern
-   4. OPENMESH_DIR = C/Program Files/OpenMeshX.X
    5. GLFW_DIR = /path/to/GLFW/main/directory
 3. Make sure you have [CMake](https://cmake.org/ "Download CMake") in your machine
 4. **Download/Clone** our repository
