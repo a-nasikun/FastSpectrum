@@ -155,13 +155,14 @@ void FastSpectrum::constructLaplacianMatrix(Eigen::MatrixXd &V, Eigen::MatrixXi 
 /* [Construct samples for the subspace] */
 void FastSpectrum::constructSample(const Eigen::MatrixXd &V, vector<set<int>> &AdM, int &sampleSize, Eigen::VectorXi &Sample)
 {
-	sampleSize = 1000;
+	sampleSize = 100;
 	int nBox = 13;
 
 	/* Different type of sampling */
-	constructPoissonDiskSample(V, nBox, avgEdgeLength, Sample);
+	//constructPoissonDiskSample(V, nBox, avgEdgeLength, Sample);
 	//constructVoxelSample(viewer, V, nBox, Sample);	
 	//constructRandomSample(Sample, V, sampleSize);
+	constructFarthestPointSample(V, AdM, sampleSize, Sample);
 	sampleSize = Sample.size();
 
 	printf("A set of %d samples are constructed.\n", Sample.size());

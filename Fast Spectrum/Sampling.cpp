@@ -258,3 +258,69 @@ void constructPoissonDiskSample(const Eigen::MatrixXd &V, const int &n, const do
 
 	// printf("It now has %d samples\n", Sample.size());
 }
+
+void ComputeDijkstra(const Eigen::MatrixXd &V, const int Si, const vector<set<int>> &AdM, Eigen::VectorXd &D)
+{
+	// Define containers for (1) visited nodes and (2) priority queue
+	priority_queue<VertexPair, std::vector<VertexPair>, std::greater<VertexPair>> DistPQueue;
+	int insertCounter = 0;
+
+	// Computing distance for initial sample points S
+	Eigen::VectorXd vRow1 = V.block<1, 3>(Si, 0);
+	D(Si) = 0.0f;
+	VertexPair vp{ Si,D(Si) };
+	DistPQueue.push(vp);
+	insertCounter++;
+
+	double distFromCenter = numeric_limits<double>::infinity();
+	// For other vertices in mesh
+	while (DistPQueue.size()>0)
+	{
+		VertexPair vp1 = DistPQueue.top();
+		Eigen::VectorXd vRow1 = V.block<1, 3>(vp1.vId, 0);
+		DistPQueue.pop();
+
+		for (set<int>::iterator it = AdM[vp1.vId].begin(); it != AdM[vp1.vId].end(); ++it) {
+			double dist;
+			Eigen::VectorXd vRow2 = V.block<1, 3>(*it, 0);
+			VtoVDist(vRow1, vRow2, dist);
+			double tempDist = vp1.distance + dist;
+			if (tempDist < D(*it)) {
+				D(*it) = tempDist;
+				distFromCenter = tempDist;
+				VertexPair vp2{ *it,tempDist };
+				DistPQueue.push(vp2);
+				insertCounter++;
+			}
+		}
+	}
+}
+
+void constructFarthestPointSample(const Eigen::MatrixXd &V, const std::vector<std::set<int>> &AdM, const int &numSamples, Eigen::VectorXi &Samples)
+{
+	Samples.resize(numSamples);
+	Eigen::VectorXd D;
+	Eigen::VectorXi Si;
+	D.resize(V.rows());
+
+	// Initialize the value of D
+	for (int i = 0; i < V.rows(); i++) {
+		D(i) = numeric_limits<double>::infinity();
+	}
+
+	srand(time(NULL));
+	Samples(0) = rand() % V.rows();
+	Si = Samples.head(1);
+	
+	ComputeDijkstra(V, Samples(0), AdM, D);
+	Eigen::VectorXi::Index maxIndex1;
+	D.maxCoeff(&maxIndex1);
+	Samples(0) = maxIndex1;
+
+	for (int i = 1; i < numSamples; i++) {
+		Eigen::VectorXi::Index maxIndex;
+		ComputeDijkstra(V, Samples(i - 1), AdM, D);
+		D.maxCoeff(&maxIndex);
+		Samples(i) = maxIndex;
+	}
+}

@@ -11,6 +11,8 @@
 
 #include <Eigen/Eigen>
 
+#include "Utility.h"
+
 using namespace std;
 
 /* [DIJKSTRA-based BASIS] */

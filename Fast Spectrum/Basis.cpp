@@ -1,13 +1,5 @@
 #include "Basis.h"
 
-/* Data structure for Priority Queue */
-struct VertexPair{
-	int		vId;
-	double	distance;
-	bool	operator> (const VertexPair &ref) const { return distance > ref.distance; }
-	bool	operator< (const VertexPair &ref) const { return distance < ref.distance; }
-};
-
 /* [DIJKSTRA-based BASIS] */
 // Computing Dijkstra Distance (sing input, D initialized inside, stops when reaching a certain distance, 
 // and used for Basis Construction), COMPACT Version
