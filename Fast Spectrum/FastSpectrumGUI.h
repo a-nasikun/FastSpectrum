@@ -34,7 +34,7 @@ void showMenu(igl::opengl::glfw::Viewer &viewer, igl::opengl::glfw::imgui::ImGui
 		// Variables For Viewer visualization
 		float	menuWindowLeft = 0.f,
 				menuWindowWidth = 200.f,
-				menuWindowHeight = 500.f;
+				menuWindowHeight = 450.f;
 
 		
 		Eigen::MatrixXd		vColor;

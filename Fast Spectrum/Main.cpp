@@ -47,8 +47,9 @@ int main(int argc, char *argv[])
 	viewer.data().set_mesh(V, F);
 	viewer.callback_key_down		= key_down;
 
+	Eigen::Vector4f bgCol(0.5f, 0.6f, 0.9f, 0.2f);
 	//Eigen::Vector4f bgCol(1.0, 1.0, 1.0, 1.0);
-	//viewer.core.background_color	= bgCol;
+	viewer.core.background_color	= bgCol;
 	viewer.data().point_size = 5.0f;
 	viewer.data().line_width = 0.5f; 	
 	return viewer.launch();
