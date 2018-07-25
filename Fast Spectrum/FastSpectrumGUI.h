@@ -124,7 +124,7 @@ void showMenu(igl::opengl::glfw::Viewer &viewer, igl::opengl::glfw::imgui::ImGui
 
 		ImGui::Spacing(); ImGui::Spacing(); ImGui::Spacing();
 
-		if (ImGui::CollapsingHeader("Visualization##FastSpectrum", ImGuiTreeNodeFlags_DefaultOpen)){
+		if (ImGui::CollapsingHeader("Visualization##FastSpectrum", ImGuiTreeNodeFlags_CollapsingHeader)){
 			/* For Sampling */
 			if (ImGui::Button("Show Samples", ImVec2((w), 0))) {				
 				viewer.data().clear();
@@ -135,7 +135,6 @@ void showMenu(igl::opengl::glfw::Viewer &viewer, igl::opengl::glfw::imgui::ImGui
 				Eigen::VectorXi Sample;
 				fastSpectrum.getSamples(Sample);
 				boolShowSamples = !boolShowSamples;
-
 
 				if (boolShowSamples) {	
 					for (int i = 0; i < Sample.size(); i++) {

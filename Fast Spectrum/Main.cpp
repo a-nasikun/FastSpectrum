@@ -1,29 +1,27 @@
 #include "FastSpectrum.h"
 #include "FastSpectrumGUI.h"
 
-
-
 /* [MAIN FUNCTION THAT CALLS EVERYTHING ELSE] */
 int main(int argc, char *argv[])
 {
-	igl::opengl::glfw::Viewer viewer;
-	FastSpectrum fastSpectrum;
-	Eigen::MatrixXd redEigVects, V, eig2;
+
+	Eigen::MatrixXd redEigVects, V;
 	Eigen::VectorXd redEigVals;
 	Eigen::MatrixXi F;
 	string meshFile = "../Models/AIM894_Chinese Dragon/894_Chinese Dragon.obj";
 	
-	/* GUI FUNCTIONALITY */		
-	igl::opengl::glfw::imgui::ImGuiMenu menu;		// Attach a menu plugin
-	viewer.plugins.push_back(&menu);								
-	IMGUI_CHECKVERSION();							// Setup Dear ImGui binding
+	/* GUI FUNCTIONALITY */	
+	igl::opengl::glfw::Viewer			viewer;			// Set up main viewer
+	FastSpectrum						fastSpectrum;
+	igl::opengl::glfw::imgui::ImGuiMenu menu;			// Attach a menu plugin
+	viewer.plugins.push_back(&menu);									
+	IMGUI_CHECKVERSION();								// Setup Dear ImGui binding
 	ImGui::CreateContext();
-	ImGui::StyleColorsDark();						// Set style
+	ImGui::StyleColorsDark();							// Set style
 
 	fastSpectrum.computeEigenPairs(meshFile, 1000, redEigVects, redEigVals);
 	fastSpectrum.getV(V);
 	fastSpectrum.getF(F);
-	fastSpectrum.getReducedEigVects(eig2);
 		
 	menu.callback_draw_viewer_window = [&]()
 	{
