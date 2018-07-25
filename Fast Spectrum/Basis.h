@@ -2,11 +2,19 @@
 #ifndef BASIS_H
 #define BASIS_H
 
-#include "Utility.h"
+#include <iostream>
+#include <set>
+#include <vector>
+#include <queue>
+#include <Eigen/Eigen>
+
+using namespace std;
 
 /* [DIJKSTRA-based BASIS] */
-// Computing Dijkstra Distance (sing input, D initialized inside, stops when reaching a certain distance, 
-// and used for Basis Construction), COMPACT Version
+/* Computing Dijkstra Distance (sing input, D initialized inside, stops when reaching a certain distance, 
+** and used for Basis Construction),*
+** COMPACT Version, meaning that distance vector D is only initialized when necessary **/
+
 void ComputeDijkstraCompact(const Eigen::MatrixXd &V, const int s1, const vector<set<int>> &AdM,
 	Eigen::VectorXd &D, const double a, const double b, const double nDist, const int col, const int sampleSize,
 	vector<Eigen::Triplet<double>> &UTriplet, int &elementCounter);	

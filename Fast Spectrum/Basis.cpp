@@ -1,5 +1,15 @@
 #include "Basis.h"
 
+
+/* Data structure for Priority Queue */
+struct VertexPair
+{
+	int		vId;
+	double	distance;
+	bool	operator> (const VertexPair &ref) const { return distance > ref.distance; }
+	bool	operator< (const VertexPair &ref) const { return distance < ref.distance; }
+};
+
 /* [DIJKSTRA-based BASIS] */
 // Computing Dijkstra Distance (sing input, D initialized inside, stops when reaching a certain distance, 
 // and used for Basis Construction), COMPACT Version
@@ -29,7 +39,6 @@ void ComputeDijkstraCompact(const Eigen::MatrixXd &V, const int s1, const vector
 
 		// Updating the distance for neighbors of vertex of lowest distance in priority queue
 		auto const& elem = AdM[vp1.vId];
-		//for (set<int>::iterator it = AdM[vp1.vId].begin(); it != AdM[vp1.vId].end(); ++it) {
 		for (auto it = elem.begin(); it != elem.end(); ++it) {
 			double dist;
 			/* Dikjstra: Compute on the fly/online */
@@ -41,9 +50,7 @@ void ComputeDijkstraCompact(const Eigen::MatrixXd &V, const int s1, const vector
 			if (tempDist < D(*it)) {
 				D(*it) = tempDist;
 				VertexPair vp2{ *it,tempDist };
-				{
-					DistPQueue.push(vp2);
-				}
+				DistPQueue.push(vp2);
 			}
 		}
 	} while (distFromCenter <= nDist);

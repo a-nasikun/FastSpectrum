@@ -39,17 +39,7 @@
 #include <omp.h>
 #include <chrono>
 
-
 using namespace std;
-
-/* Data structure for Priority Queue */
-struct VertexPair
-{
-	int		vId;
-	double	distance;
-	bool	operator> (const VertexPair &ref) const { return distance > ref.distance; }
-	bool	operator< (const VertexPair &ref) const { return distance < ref.distance; }
-};
 
 /* Create a list of neighbors of every vertex */
 void initiateAdM(Eigen::MatrixXd &V, Eigen::MatrixXi &F, vector<set<int>> &AM);
