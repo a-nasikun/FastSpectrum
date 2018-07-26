@@ -107,7 +107,7 @@ void FastSpectrum::constructSample(){
 	switch (sampleType)
 	{
 	case Sample_Poisson_Disk:
-		constructPoissonDiskSample(V, nBox, avgEdgeLength, Sample);
+		constructPoissonDiskSample(V, sampleSize, nBox, avgEdgeLength, Sample);
 		break;
 	case Sample_Farthest_Point:
 		constructFarthestPointSample(V, AdM, sampleSize, Sample);

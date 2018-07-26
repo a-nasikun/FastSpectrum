@@ -94,7 +94,7 @@ void constructVoxelSample(igl::opengl::glfw::Viewer &viewer, const Eigen::Matrix
 }
 
 /* Construct Poisson-Disk Sample */
-void constructPoissonDiskSample(const Eigen::MatrixXd &V, const int &n, const double &avgEdgeLength, Eigen::VectorXi &Sample)
+void constructPoissonDiskSample(const Eigen::MatrixXd &V, const int &numSamples, const int &n, const double &avgEdgeLength, Eigen::VectorXi &Sample)
 {
 	/* Initialization of computing boundary of each box	 */
 	Eigen::Vector3d minV(V.col(0).minCoeff(), V.col(1).minCoeff(), V.col(2).minCoeff());
@@ -104,7 +104,8 @@ void constructPoissonDiskSample(const Eigen::MatrixXd &V, const int &n, const do
 	boxDist = range / (double)n;
 	set<int>		locSample;
 	const int		SamplePerBox = 10;
-	double			radius = 0.50 * 1.0 / 3.0 * (boxDist(0) + boxDist(1) + boxDist(2));
+	//double			radius = 0.50 * 1.0 / 3.0 * (boxDist(0) + boxDist(1) + boxDist(2));
+	double			radius = sqrt((double)V.rows() / (3.0*(double)numSamples)) * avgEdgeLength; 
 
 	/* Container for boxes */
 	priority_queue<BoxStruct, std::vector<BoxStruct>, std::greater<BoxStruct>>	UnvisitedBoxQueue;

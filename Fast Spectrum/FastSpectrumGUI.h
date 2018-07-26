@@ -20,7 +20,8 @@
 int					basisToShow		= 0;
 int					eigToShow		= 0;
 bool				boolShowSamples = false;
-static int sampleType		= Sample_Poisson_Disk; 
+static int			numOfSample		= 1000;
+static int			sampleType		= Sample_Poisson_Disk; 
 
 void showMenu(igl::opengl::glfw::Viewer &viewer, igl::opengl::glfw::imgui::ImGuiMenu &menu, FastSpectrum &fastSpectrum) {
 	// MAIN WINDOW 	
@@ -33,12 +34,12 @@ void showMenu(igl::opengl::glfw::Viewer &viewer, igl::opengl::glfw::imgui::ImGui
 		// Variables For Viewer visualization
 		float	menuWindowLeft		= 0.f,
 				menuWindowWidth		= 200.f,
-				menuWindowHeight	= 450.f;
+				menuWindowHeight	= 475.f;
 		
 		Eigen::MatrixXd		vColor;
 		Eigen::VectorXd		Z;
 
-		ImGui::SetNextWindowPos(ImVec2(1+menuWindowLeft * menu.menu_scaling(), 1), ImGuiSetCond_FirstUseEver);
+		ImGui::SetNextWindowPos(ImVec2(5+menuWindowLeft * menu.menu_scaling(), 5), ImGuiSetCond_FirstUseEver);
 		ImGui::SetNextWindowSize(ImVec2(menuWindowWidth, menuWindowHeight), ImGuiSetCond_FirstUseEver);
 		ImGui::Begin("Fast Spectrum##2", nullptr, ImGuiWindowFlags_NoSavedSettings);
 
@@ -58,6 +59,8 @@ void showMenu(igl::opengl::glfw::Viewer &viewer, igl::opengl::glfw::imgui::ImGui
 				fastSpectrum.setV(V);
 				fastSpectrum.setF(F);
 
+				viewer.core.align_camera_center(V, F);
+
 				viewer.data().show_lines = false;
 				printf("A new mesh with %d vertices (%d faces).\n", V.rows(), F.rows());
 			}
@@ -67,7 +70,7 @@ void showMenu(igl::opengl::glfw::Viewer &viewer, igl::opengl::glfw::imgui::ImGui
 			}
 			if (ImGui::Button("Run Algorithm", ImVec2((w), 30))){
 				//fastSpectrum.computeEigenPairs(meshFile, 1000, redEigVects, redEigVals);
-				fastSpectrum.computeEigenPairs( V, F, 1000, (SamplingType) sampleType, redEigVects, redEigVals);
+				fastSpectrum.computeEigenPairs( V, F, numOfSample, (SamplingType) sampleType, redEigVects, redEigVals);
 				
 				// Show the first non-zero eigenvectors
 				eigToShow					= 1;
@@ -77,8 +80,8 @@ void showMenu(igl::opengl::glfw::Viewer &viewer, igl::opengl::glfw::imgui::ImGui
 				igl::jet(Z, true, vColor);
 				viewer.data().set_colors(vColor);
 			}
-
-			ImGui::Spacing(); ImGui::Spacing(); ImGui::Spacing();
+			
+			ImGui::Spacing(); ImGui::Separator(); ImGui::Spacing(); ImGui::Spacing();
 
 			/* STEP BY STEP CONSTRUCTION */
 			if (ImGui::CollapsingHeader("Program Step by Step")) {
@@ -88,11 +91,18 @@ void showMenu(igl::opengl::glfw::Viewer &viewer, igl::opengl::glfw::imgui::ImGui
 				}
 				/* For Sampling */
 				if (ImGui::Button("[2] Sampling", ImVec2(w, 0))) {
+					fastSpectrum.setSample(numOfSample, (SamplingType) sampleType);
 					fastSpectrum.constructSample();
 				}
 				ImGui::RadioButton("Poisson Disk", &sampleType, Sample_Poisson_Disk); ImGui::SameLine();
-				ImGui::RadioButton("Farthest Point", &sampleType, Sample_Farthest_Point); ImGui::SameLine();
-				ImGui::RadioButton("Random", &sampleType, Sample_Random);
+				ImGui::RadioButton("Farthest Point", &sampleType, Sample_Farthest_Point); 
+				//ImGui::RadioButton("Random", &sampleType, Sample_Random);
+				ImGui::Text("Number of sample"); ImGui::SameLine();
+				static char numSample[5] = ""; ImGui::InputText("", numSample, 5);
+				numOfSample = atoi(numSample);
+
+				ImGui::Spacing(); ImGui::Spacing();
+
 				/* For Basis */
 				if (ImGui::Button("[3] Construct Basis", ImVec2(w, 0))) {
 					fastSpectrum.constructBasis();
@@ -118,17 +128,12 @@ void showMenu(igl::opengl::glfw::Viewer &viewer, igl::opengl::glfw::imgui::ImGui
 				}
 			}
 		}
+				
+		ImGui::Spacing(); ImGui::Separator(); ImGui::Spacing(); ImGui::Spacing();
 
-		ImGui::Spacing(); ImGui::Spacing(); ImGui::Spacing();
-
-		if (ImGui::CollapsingHeader("Visualization##FastSpectrum", ImGuiTreeNodeFlags_CollapsingHeader)){
+		if (ImGui::CollapsingHeader("Visualization##FastSpectrum", ImGuiTreeNodeFlags_DefaultOpen)){
 			/* For Sampling */
-			if (ImGui::Button("Show Samples", ImVec2((w), 0))) {				
-				viewer.data().clear();
-				fastSpectrum.getV(V);
-				fastSpectrum.getF(F);
-				viewer.data().set_mesh(V, F);
-
+			if (ImGui::Button("Show Samples", ImVec2((w), 0))) {
 				Eigen::VectorXi Sample;
 				fastSpectrum.getSamples(Sample);
 				boolShowSamples = !boolShowSamples;
@@ -139,7 +144,13 @@ void showMenu(igl::opengl::glfw::Viewer &viewer, igl::opengl::glfw::imgui::ImGui
 					}
 				}
 				else {
+					viewer.data().clear();
+					fastSpectrum.getV(V);
+					fastSpectrum.getF(F);
+					viewer.data().set_mesh(V, F);
 				}
+
+				viewer.data().point_size = 5.0f;
 			}
 
 			/* For Basis */			
