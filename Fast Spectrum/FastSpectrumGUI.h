@@ -88,7 +88,7 @@ void showMenu(igl::opengl::glfw::Viewer &viewer, igl::opengl::glfw::imgui::ImGui
 				}
 				/* For Sampling */
 				if (ImGui::Button("[2] Sampling", ImVec2(w, 0))) {
-					fastSpectrum.runSampling();
+					fastSpectrum.constructSample();
 				}
 				ImGui::RadioButton("Poisson Disk", &sampleType, Sample_Poisson_Disk); ImGui::SameLine();
 				ImGui::RadioButton("Farthest Point", &sampleType, Sample_Farthest_Point); ImGui::SameLine();

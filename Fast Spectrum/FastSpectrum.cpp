@@ -1,143 +1,85 @@
 #include "FastSpectrum.h"
 
 /* [MAIN FUNCTIONS IN FAST APPROXIMATIONG ALGORITHM] */
-void FastSpectrum::computeEigenPairs(Eigen::MatrixXd &V, Eigen::MatrixXi &F, const int &numOfSamples, Eigen::MatrixXd &reducedEigVects, Eigen::VectorXd &reducedEigVals)
-{
-	computeEigenPairs(V, F, numOfSamples, Sample_Poisson_Disk, reducedEigVects, reducedEigVals);
-}
 
-void FastSpectrum::computeEigenPairs(Eigen::MatrixXd &V, Eigen::MatrixXi &F, const int &numOfSamples, SamplingType sampleType, Eigen::MatrixXd &reducedEigVects, Eigen::VectorXd &reducedEigVals)
-{
-	// [1.2]	Constructing Laplacian Matrices (Stiffness and Mass-Matrix)
-	constructLaplacianMatrix(V, F, S, M, AdM, avgEdgeLength, DistanceTableSpM);
 
-	// [2]		SAMPLING
-	constructSample(V, AdM, sampleSize, Sample);
-
-	// [3]		BASIS CONSTRUCTION
-	double	distRatio = sqrt(pow(0.7, 2) + pow(0.7, 2));
-	maxNeighDist = distRatio * sqrt((double)V.rows() / (double)Sample.size()) * avgEdgeLength;
-	constructBasis(V, F, Sample, AdM, DistanceTableSpM, sampleSize, maxNeighDist, Basis);
-	formPartitionOfUnity(Basis);
-
-	// [4]		LOW-DIM PROBLEM
-	S_ = Basis.transpose() * S  * Basis;
-	M_ = Basis.transpose() * M  * Basis;
-
-	// [5]		SOLVING LOW-DIM EIGENPROBLEM
-	computeEigenPair(S_, M_, reducedEigVects, reducedEigVals);
-	normalizeReducedEigVects(Basis, M, reducedEigVects);
-	this->reducedEigVects = reducedEigVects;
-	this->reducedEigVals = reducedEigVals;
-}
-
+// String mesh name + No predefined sample type + No Basis call + reduced eigenbasis
 void FastSpectrum::computeEigenPairs(const string &meshFile, const int &numOfSamples, Eigen::MatrixXd &reducedEigVects, Eigen::VectorXd &reducedEigVals)
 {
 	computeEigenPairs(meshFile, numOfSamples, Sample_Poisson_Disk, reducedEigVects, reducedEigVals);
 }
 
-void FastSpectrum::computeEigenPairs(const string &meshFile, const int &numOfSamples, SamplingType sampleType, Eigen::MatrixXd &reducedEigVects, Eigen::VectorXd &reducedEigVals)
+// String mesh name + No predefined sample type + Basis call + reduced eigenbasis
+void FastSpectrum::computeEigenPairs(const string &meshFile, const int &numOfSamples, Eigen::SparseMatrix<double> &Basis, Eigen::MatrixXd &reducedEigVects, Eigen::VectorXd &reducedEigVals)
 {
-	readMesh(meshFile, V, F);
-	computeEigenPairs(V, F, numOfSamples, Sample_Poisson_Disk, reducedEigVects, reducedEigVals);
-}
-
-/* [ENCAPSULATION]*/
-void FastSpectrum::constructLaplacianMatrix(){
-	constructLaplacianMatrix(V, F, S, M, AdM, avgEdgeLength, DistanceTableSpM);
-}
-
-void FastSpectrum::runSampling(){
-	constructSample(V, AdM, sampleSize, Sample);
-}
-
-void FastSpectrum::constructBasis() {
-	double	distRatio = sqrt(pow(1.1, 2) + pow(0.7, 2));			// A heuristic to make the support around 10.00 (i.e. number of non-zeros per row)
-	maxNeighDist = distRatio * sqrt((double)V.rows() / (double)Sample.size()) * avgEdgeLength;
-	constructBasis(V, F, Sample, AdM, DistanceTableSpM, sampleSize, maxNeighDist, Basis);
-	formPartitionOfUnity(Basis);
-}
-
-void FastSpectrum::constructRestrictedProblem() {
-	S_ = Basis.transpose() * S  * Basis;
-	M_ = Basis.transpose() * M  * Basis;
-
-	printf("A set of reduced stiffness and mass matrix (each %dx%d) is constructed.\n", S_.rows(), M_.cols());
-}
-
-void FastSpectrum::solveRestrictedProblem() {
-	computeEigenPair(S_, M_, reducedEigVects, reducedEigVals);
-	normalizeReducedEigVects(Basis, M, reducedEigVects);
-}
-
-/* [GETTER AMD SETTER] */
-void FastSpectrum::liftEigenVectors() {
-	approxEigVects = Basis*reducedEigVects;
-}
-
-void FastSpectrum::getV(Eigen::MatrixXd &V)
-{
-	V = this->V;
-}
-void FastSpectrum::getF(Eigen::MatrixXi &F)
-{
-	F = this->F;
-}
-
-void FastSpectrum::getSamples(Eigen::VectorXi &Sample)
-{
-	Sample = this->Sample;
-}
-
-void FastSpectrum::getFunctionBasis(Eigen::SparseMatrix<double> &Basis)
-{
+	computeEigenPairs(meshFile, numOfSamples, Sample_Poisson_Disk, reducedEigVects, reducedEigVals);
 	Basis = this->Basis;
 }
 
-void FastSpectrum::getReducedEigVects(Eigen::MatrixXd &reducedEigVects)
+/* Sub-main function (the one that called the most important version of this family of overloaded functions */
+// String mesh name + With predefined sample type + No Basis call + reduced eigenbasis
+void FastSpectrum::computeEigenPairs(const string &meshFile, const int &numOfSamples, SamplingType sampleType, Eigen::MatrixXd &reducedEigVects, Eigen::VectorXd &reducedEigVals)
 {
-	reducedEigVects = this->reducedEigVects;
+	readMesh(meshFile, V, F);
+	computeEigenPairs(V, F, numOfSamples, sampleType, reducedEigVects, reducedEigVals);
 }
 
-void FastSpectrum::getReducedLaplacian()
+// String mesh name + With predefined sample type + with Basis call + reduced eigenbasis
+void FastSpectrum::computeEigenPairs(const string &meshFile, const int &numOfSamples, SamplingType sampleType, Eigen::SparseMatrix<double> &Basis, Eigen::MatrixXd &reducedEigVects, Eigen::VectorXd &reducedEigVals)
 {
-
+	computeEigenPairs(meshFile, numOfSamples, sampleType, reducedEigVects, reducedEigVals);
+	Basis = this->Basis;
 }
 
-void FastSpectrum::setV(const Eigen::MatrixXd &V){
+// Vertices & Faces + No predefined sample type + No Basis call + reduced eigenbasis
+void FastSpectrum::computeEigenPairs(Eigen::MatrixXd &V, Eigen::MatrixXi &F, const int &numOfSamples, Eigen::MatrixXd &reducedEigVects, Eigen::VectorXd &reducedEigVals)
+{
+	computeEigenPairs(V, F, numOfSamples, Sample_Poisson_Disk, reducedEigVects, reducedEigVals);
+}
+
+// Vertices & Faces + No predefined sample type + Basis call + reduced eigenbasis
+void FastSpectrum::computeEigenPairs(Eigen::MatrixXd &V, Eigen::MatrixXi &F, const int &numOfSamples, Eigen::SparseMatrix<double> &Basis, Eigen::MatrixXd &reducedEigVects, Eigen::VectorXd &reducedEigVals)
+{
+	computeEigenPairs(V, F, numOfSamples, Sample_Poisson_Disk, reducedEigVects, reducedEigVals);
+	Basis = this->Basis;
+}
+
+/* Most important version of the overloaded family of this function calls */
+// Vertices & Faces + With predefined sample type + No Basis call + reduced eigenbasis
+void FastSpectrum::computeEigenPairs(Eigen::MatrixXd &V, Eigen::MatrixXi &F, const int &numOfSamples, SamplingType sampleType, Eigen::MatrixXd &reducedEigVects, Eigen::VectorXd &reducedEigVals)
+{
+	// [1.2] Constructing Laplacian Matrices (Stiffness and Mass-Matrix)
 	this->V = V;
-}
-void FastSpectrum::setF(const Eigen::MatrixXi &F){
 	this->F = F;
+	constructLaplacianMatrix();
+
+	// [2]	SAMPLING
+	constructSample();
+
+	// [3]	BASIS CONSTRUCTION
+	double	distRatio = sqrt(pow(0.7, 2) + pow(0.7, 2));
+	maxNeighDist = distRatio * sqrt((double)V.rows() / (double)Sample.size()) * avgEdgeLength;
+	constructBasis();
+
+	// [4]	LOW-DIM PROBLEM
+	constructRestrictedProblem();
+
+	// [5]	SOLVING LOW-DIM EIGENPROBLEM
+	solveRestrictedProblem();
+	reducedEigVects = this->reducedEigVects;
+	reducedEigVals  = this->reducedEigVals;
 }
 
-
-/* [Read mesh model from file] */
-void FastSpectrum::readMesh(const string &meshFile, Eigen::MatrixXd &V, Eigen::MatrixXi &F)
+// Vertices & Faces + With predefined sample type + with Basis call + reduced eigenbasis
+void FastSpectrum::computeEigenPairs(Eigen::MatrixXd &V, Eigen::MatrixXi &F, const int &numOfSamples, SamplingType sampleType, Eigen::SparseMatrix<double> &Basis, Eigen::MatrixXd &reducedEigVects, Eigen::VectorXd &reducedEigVals)
 {
-	V.resize(0, 0);
-	F.resize(0, 0);
-
-	if (meshFile.substr(meshFile.find_last_of(".") + 1) == "off") {
-		igl::readOFF(meshFile, V, F);
-	}
-	else if (meshFile.substr(meshFile.find_last_of(".") + 1) == "obj") {
-		igl::readOBJ(meshFile, V, F);
-	}
-	else {
-		cout << "Error! File type can be either .OFF or .OBJ only." << endl;
-		cout << "Program will exit in 2 seconds." << endl;
-		Sleep(2000);
-		exit(10);
-	}
-
-	printf("A new mesh with %d vertices (%d faces).\n", V.rows(), F.rows());
+	computeEigenPairs(V, F, numOfSamples, sampleType, reducedEigVects, reducedEigVals);
+	Basis = this->Basis;
 }
 
+/* [ENCAPSULATION]*/
 /* [Construct the stiffness & mass matrix AND other important tables] */
-void FastSpectrum::constructLaplacianMatrix(Eigen::MatrixXd &V, Eigen::MatrixXi &F, Eigen::SparseMatrix<double> &S, Eigen::SparseMatrix<double> &M,
-	vector<set<int>> &AdM, double &avgEdgeLength, Eigen::SparseMatrix<double> &DistanceTableSpM)
-{
+void FastSpectrum::constructLaplacianMatrix(){
 	/* Construct Stiffness matrix S */
 	igl::cotmatrix(V, F, S);
 	S = -S;
@@ -158,24 +100,154 @@ void FastSpectrum::constructLaplacianMatrix(Eigen::MatrixXd &V, Eigen::MatrixXi 
 }
 
 /* [Construct samples for the subspace] */
-void FastSpectrum::constructSample(const Eigen::MatrixXd &V, vector<set<int>> &AdM, int &sampleSize, Eigen::VectorXi &Sample)
-{
-	sampleSize = 100;
+void FastSpectrum::constructSample(){
 	int nBox = 13;
 
 	/* Different type of sampling */
-	//constructPoissonDiskSample(V, nBox, avgEdgeLength, Sample);
-	//constructVoxelSample(viewer, V, nBox, Sample);	
-	//constructRandomSample(Sample, V, sampleSize);
-	constructFarthestPointSample(V, AdM, sampleSize, Sample);
-	sampleSize = Sample.size();
+	switch (sampleType)
+	{
+	case Sample_Poisson_Disk:
+		constructPoissonDiskSample(V, nBox, avgEdgeLength, Sample);
+		break;
+	case Sample_Farthest_Point:
+		constructFarthestPointSample(V, AdM, sampleSize, Sample);
+		break;
+	case Sample_Random:
+		constructRandomSample(Sample, V, sampleSize);
+		break;
+	default:
+		break;
+	}	
+	this->sampleSize = Sample.size();
 
-	printf("A set of %d samples are constructed.\n", Sample.size());
+	printf("A set of %d samples are constructed.\n", sampleSize);
+}
+
+void FastSpectrum::constructBasis() {
+	double	distRatio = sqrt(pow(1.1, 2) + pow(0.7, 2));			// A heuristic to make the support around 10.00 (i.e. number of non-zeros per row)
+	maxNeighDist = distRatio * sqrt((double)V.rows() / (double)Sample.size()) * avgEdgeLength;
+	constructBasisFunctions();
+	formPartitionOfUnity(Basis);
+}
+
+void FastSpectrum::constructRestrictedProblem() {
+	S_ = Basis.transpose() * S  * Basis;
+	M_ = Basis.transpose() * M  * Basis;
+
+	printf("A set of reduced stiffness and mass matrix (each %dx%d) is constructed.\n", S_.rows(), M_.cols());
+}
+
+void FastSpectrum::solveRestrictedProblem() {
+	computeEigenPair();
+	normalizeReducedEigVects();
+}
+
+/* [GETTER AMD SETTER] */
+void FastSpectrum::getV(Eigen::MatrixXd &V)
+{
+	V = this->V;
+}
+void FastSpectrum::getF(Eigen::MatrixXi &F)
+{
+	F = this->F;
+}
+
+void FastSpectrum::getSamples(Eigen::VectorXi &Sample)
+{
+	Sample = this->Sample;
+}
+
+void FastSpectrum::getFunctionBasis(Eigen::SparseMatrix<double> &Basis)
+{
+	Basis = this->Basis;
+}
+
+void FastSpectrum::getReducedEigVals(Eigen::VectorXd &reducedEigVals)
+{
+	reducedEigVals = this->reducedEigVals;
+}
+
+void FastSpectrum::getReducedEigVects(Eigen::MatrixXd &reducedEigVects)
+{
+	reducedEigVects = this->reducedEigVects;
+}
+
+void FastSpectrum::getApproxEigVects(Eigen::MatrixXd &approxEigVects)
+{
+	approxEigVects = Basis*reducedEigVects;
+}
+
+void FastSpectrum::getReducedLaplacian(Eigen::SparseMatrix<double> SBar, Eigen::SparseMatrix<double> MBar)
+{
+	SBar = this->S_;
+	MBar = this->M_;
+}
+
+void FastSpectrum::setV(const Eigen::MatrixXd &V){
+	this->V = V;
+}
+void FastSpectrum::setF(const Eigen::MatrixXi &F){
+	this->F = F;
+}
+
+void FastSpectrum::setMesh(const Eigen::MatrixXd &V, const Eigen::MatrixXi &F)
+{
+	setV(V);
+	setF(F);
+}
+
+void FastSpectrum::setMesh(const string &meshFile) 
+{
+	readMesh(meshFile, V, F);
+	setMesh(V, F);
+}
+
+void FastSpectrum::setSample(const int &sampleSize, SamplingType sampleType)
+{
+	setSampleNumber(sampleSize);
+	setSampleType(sampleType);
+}
+
+void FastSpectrum::setSampleNumber(const int &sampleSize)
+{
+	this->sampleSize = sampleSize;
+}
+
+void FastSpectrum::setSampleType(SamplingType sampleType)
+{
+	this->sampleType = sampleType; 
+}
+
+/* [Read mesh model from file] */
+void FastSpectrum::readMesh(const string &meshFile, Eigen::MatrixXd &V, Eigen::MatrixXi &F)
+{
+	V.resize(0, 0);
+	F.resize(0, 0);
+
+	if (meshFile.substr(meshFile.find_last_of(".") + 1) == "off") {
+		igl::readOFF(meshFile, V, F);
+		if (V.rows() == 0 || V.cols() == 0) {
+			cout << "Error! It cannot be an empty mesh." << endl;
+			return;
+		}
+		printf("A new mesh with %d vertices (%d faces) is loaded.\n", V.rows(), F.rows());
+	}
+	else if (meshFile.substr(meshFile.find_last_of(".") + 1) == "obj") {
+		igl::readOBJ(meshFile, V, F);
+		if (V.rows() == 0 || V.cols() == 0) {
+			cout << "Error! It cannot be an empty mesh." << endl;
+			return;
+		}
+		printf("A new mesh with %d vertices (%d faces) is loaded.\n", V.rows(), F.rows());
+	}
+	else {
+		cout << "Error! File type can be either .OFF or .OBJ only." << endl;
+		return;
+	}	
 }
 
 /* [Construct Basis Matrix] */
-void FastSpectrum::constructBasis(const Eigen::MatrixXd &V, Eigen::MatrixXi &T, const Eigen::VectorXi &Sample, const vector<set<int>> AdM, const Eigen::SparseMatrix<double> DistanceTableSpM,
-	const int sampleSize, const double maxNeighDist, Eigen::SparseMatrix<double> &Basis)
+void FastSpectrum::constructBasisFunctions()
 {
 	Basis.resize(V.rows(), Sample.size());
 	Basis.reserve(20 * V.rows());
@@ -201,7 +273,7 @@ void FastSpectrum::constructBasis(const Eigen::MatrixXd &V, Eigen::MatrixXi &T, 
 	elementCounter.resize(NUM_OF_THREADS);
 	int totalElementInsertions = 0;
 
-	/* Manually break the chunck */
+	/* Manually break the chunck for parallelization */
 #pragma omp parallel private(tid,ntids,ipts,istart,i, t4,t5,time_span4)
 	{
 		t4		= chrono::high_resolution_clock::now();
@@ -218,9 +290,7 @@ void FastSpectrum::constructBasis(const Eigen::MatrixXd &V, Eigen::MatrixXi &T, 
 		for (int i = 0; i < V.rows(); i++) {
 			D(i) = numeric_limits<double>::infinity();
 		}
-
-		//printf("Thread %d handles %d samples, starting from %d-th sample.\n", tid, ipts, istart);
-
+		
 		UTriplet[tid].reserve(2.0 * ((double)ipts / (double)sampleSize) * 20.0 * V.rows());
 
 		for (i = istart; i < (istart + ipts); i++) {
@@ -278,22 +348,24 @@ void FastSpectrum::formPartitionOfUnity(Eigen::SparseMatrix<double> &Basis)
 }
 
 /* [Compute the eigenpairs of Low-Dim Problem ] */
-void FastSpectrum::computeEigenPair(Eigen::SparseMatrix<double> &S_, Eigen::SparseMatrix<double> &M_, Eigen::MatrixXd &LDEigVec, Eigen::VectorXd &LDEigVal)
+void FastSpectrum::computeEigenPair(/*Eigen::SparseMatrix<double> &S_, Eigen::SparseMatrix<double> &M_, Eigen::MatrixXd &LDEigVec, Eigen::VectorXd &LDEigVal*/)
 {
-	computeEigenGPU(S_, M_, LDEigVec, LDEigVal);
+	computeEigenGPU(S_, M_, reducedEigVects, reducedEigVals);
 }
 
-void FastSpectrum::normalizeReducedEigVects(const Eigen::SparseMatrix<double> &Basis, const Eigen::SparseMatrix<double> &M, Eigen::MatrixXd &LDEigVec)
+/* We do this because the result of eigensolver generally orthonormal to each other in low dim,
+** but not w.r.t. mass matrix M, */
+void FastSpectrum::normalizeReducedEigVects()
 {
 	Eigen::SparseMatrix<double> UTMU;
 	UTMU = Basis.transpose() * M *Basis;
 	double mNorm;
 	int i = 0;
 
-	for (i = 0; i < LDEigVec.cols(); i++) {
-		mNorm = LDEigVec.col(i).transpose() * UTMU * LDEigVec.col(i);
+	for (i = 0; i < reducedEigVects.cols(); i++) {
+		mNorm = reducedEigVects.col(i).transpose() * UTMU * reducedEigVects.col(i);
 		mNorm = (double) 1.0 / sqrt(mNorm);
-		LDEigVec.col(i) = mNorm * LDEigVec.col(i);
+		reducedEigVects.col(i) = mNorm * reducedEigVects.col(i);
 	}
-	printf("A set of %d eigenparis is computed.\n", LDEigVec.cols());
+	printf("A set of %d eigenpairs is computed.\n", reducedEigVects.cols());
 }
