@@ -25,6 +25,13 @@ struct BoxStruct{
 	bool	operator< (const BoxStruct &ref) const { return distance < ref.distance; }
 };
 
+/* Enum for different sampling method */
+enum SamplingType {
+	Sample_Poisson_Disk		= 0,
+	Sample_Farthest_Point	= 1,
+	Sample_Random			= 2
+};
+
 void constructRandomSample(Eigen::VectorXi &Sample, const Eigen::MatrixXd &V, int n);
 void constructVoxelSample(igl::opengl::glfw::Viewer &viewer, const Eigen::MatrixXd &V, const int &n, Eigen::VectorXi &Sample);
 void constructPoissonDiskSample(const Eigen::MatrixXd &V, const int &n, const double &avgEdgeLength, Eigen::VectorXi &Sample);

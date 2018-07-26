@@ -28,7 +28,9 @@ class FastSpectrum
 public:
 	/* [MAIN FUNCTIONS IN FAST APPROXIMATIONG ALGORITHM] */
 	void computeEigenPairs(Eigen::MatrixXd &V, Eigen::MatrixXi &F, const int &numOfSamples, Eigen::MatrixXd &reducedEigVects, Eigen::VectorXd &reducedEigVals);
+	void computeEigenPairs(Eigen::MatrixXd &V, Eigen::MatrixXi &F, const int &numOfSamples, SamplingType sampleType, Eigen::MatrixXd &reducedEigVects, Eigen::VectorXd &reducedEigVals);
 	void computeEigenPairs(const string &meshFile, const int &numOfSamples, Eigen::MatrixXd &reducedEigVects, Eigen::VectorXd &reducedEigVals);
+	void computeEigenPairs(const string &meshFile, const int &numOfSamples, SamplingType sampleType, Eigen::MatrixXd &reducedEigVects, Eigen::VectorXd &reducedEigVals);
 
 	void constructLaplacianMatrix();
 	void runSampling();

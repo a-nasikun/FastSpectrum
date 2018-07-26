@@ -3,6 +3,11 @@
 /* [MAIN FUNCTIONS IN FAST APPROXIMATIONG ALGORITHM] */
 void FastSpectrum::computeEigenPairs(Eigen::MatrixXd &V, Eigen::MatrixXi &F, const int &numOfSamples, Eigen::MatrixXd &reducedEigVects, Eigen::VectorXd &reducedEigVals)
 {
+	computeEigenPairs(V, F, numOfSamples, Sample_Poisson_Disk, reducedEigVects, reducedEigVals);
+}
+
+void FastSpectrum::computeEigenPairs(Eigen::MatrixXd &V, Eigen::MatrixXi &F, const int &numOfSamples, SamplingType sampleType, Eigen::MatrixXd &reducedEigVects, Eigen::VectorXd &reducedEigVals)
+{
 	// [1.2]	Constructing Laplacian Matrices (Stiffness and Mass-Matrix)
 	constructLaplacianMatrix(V, F, S, M, AdM, avgEdgeLength, DistanceTableSpM);
 
@@ -22,16 +27,19 @@ void FastSpectrum::computeEigenPairs(Eigen::MatrixXd &V, Eigen::MatrixXi &F, con
 	// [5]		SOLVING LOW-DIM EIGENPROBLEM
 	computeEigenPair(S_, M_, reducedEigVects, reducedEigVals);
 	normalizeReducedEigVects(Basis, M, reducedEigVects);
-	this->reducedEigVects	= reducedEigVects;
-	this->reducedEigVals	= reducedEigVals;
+	this->reducedEigVects = reducedEigVects;
+	this->reducedEigVals = reducedEigVals;
 }
 
 void FastSpectrum::computeEigenPairs(const string &meshFile, const int &numOfSamples, Eigen::MatrixXd &reducedEigVects, Eigen::VectorXd &reducedEigVals)
 {
-	// [1]		INITIALIZATION
-	// [1.1]	Reading the Mesh
+	computeEigenPairs(meshFile, numOfSamples, Sample_Poisson_Disk, reducedEigVects, reducedEigVals);
+}
+
+void FastSpectrum::computeEigenPairs(const string &meshFile, const int &numOfSamples, SamplingType sampleType, Eigen::MatrixXd &reducedEigVects, Eigen::VectorXd &reducedEigVals)
+{
 	readMesh(meshFile, V, F);
-	computeEigenPairs(V, F, numOfSamples, reducedEigVects, reducedEigVals);
+	computeEigenPairs(V, F, numOfSamples, Sample_Poisson_Disk, reducedEigVects, reducedEigVals);
 }
 
 /* [ENCAPSULATION]*/
@@ -41,7 +49,6 @@ void FastSpectrum::constructLaplacianMatrix(){
 
 void FastSpectrum::runSampling(){
 	constructSample(V, AdM, sampleSize, Sample);
-
 }
 
 void FastSpectrum::constructBasis() {
@@ -61,8 +68,6 @@ void FastSpectrum::constructRestrictedProblem() {
 void FastSpectrum::solveRestrictedProblem() {
 	computeEigenPair(S_, M_, reducedEigVects, reducedEigVals);
 	normalizeReducedEigVects(Basis, M, reducedEigVects);
-	//this->reducedEigVects = reducedEigVects;
-	//this->reducedEigVals = reducedEigVals;
 }
 
 /* [GETTER AMD SETTER] */

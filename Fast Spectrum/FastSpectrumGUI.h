@@ -17,9 +17,10 @@
 
 #include "FastSpectrum.h"
 
-int		basisToShow=0;
-int		eigToShow=0;
-bool	boolShowSamples = false;
+int					basisToShow		= 0;
+int					eigToShow		= 0;
+bool				boolShowSamples = false;
+static int sampleType		= Sample_Poisson_Disk; 
 
 void showMenu(igl::opengl::glfw::Viewer &viewer, igl::opengl::glfw::imgui::ImGuiMenu &menu, FastSpectrum &fastSpectrum) {
 	// MAIN WINDOW 	
@@ -28,24 +29,18 @@ void showMenu(igl::opengl::glfw::Viewer &viewer, igl::opengl::glfw::imgui::ImGui
 		Eigen::MatrixXd redEigVects, V = viewer.data().V;
 		Eigen::VectorXd redEigVals;
 		Eigen::MatrixXi F = viewer.data().F;
-		//string meshFile = "../Models/AIM894_Chinese Dragon/894_Chinese Dragon.obj";
 
 		// Variables For Viewer visualization
-		float	menuWindowLeft = 0.f,
-				menuWindowWidth = 200.f,
-				menuWindowHeight = 450.f;
-
+		float	menuWindowLeft		= 0.f,
+				menuWindowWidth		= 200.f,
+				menuWindowHeight	= 450.f;
 		
 		Eigen::MatrixXd		vColor;
 		Eigen::VectorXd		Z;
 
 		ImGui::SetNextWindowPos(ImVec2(1+menuWindowLeft * menu.menu_scaling(), 1), ImGuiSetCond_FirstUseEver);
 		ImGui::SetNextWindowSize(ImVec2(menuWindowWidth, menuWindowHeight), ImGuiSetCond_FirstUseEver);
-		//ImGui::SetNextWindowSize(ImGui::GetIO().DisplaySize, ImGuiSetCond_Always);
-		ImGui::Begin(
-			"Fast Spectrum##2", nullptr,
-			ImGuiWindowFlags_NoSavedSettings
-		);
+		ImGui::Begin("Fast Spectrum##2", nullptr, ImGuiWindowFlags_NoSavedSettings);
 
 		float w = ImGui::GetContentRegionAvailWidth();
 		float p = ImGui::GetStyle().FramePadding.x;
@@ -72,7 +67,7 @@ void showMenu(igl::opengl::glfw::Viewer &viewer, igl::opengl::glfw::imgui::ImGui
 			}
 			if (ImGui::Button("Run Algorithm", ImVec2((w), 30))){
 				//fastSpectrum.computeEigenPairs(meshFile, 1000, redEigVects, redEigVals);
-				fastSpectrum.computeEigenPairs( V, F, 1000, redEigVects, redEigVals);
+				fastSpectrum.computeEigenPairs( V, F, 1000, (SamplingType) sampleType, redEigVects, redEigVals);
 				
 				// Show the first non-zero eigenvectors
 				eigToShow					= 1;
@@ -95,6 +90,9 @@ void showMenu(igl::opengl::glfw::Viewer &viewer, igl::opengl::glfw::imgui::ImGui
 				if (ImGui::Button("[2] Sampling", ImVec2(w, 0))) {
 					fastSpectrum.runSampling();
 				}
+				ImGui::RadioButton("Poisson Disk", &sampleType, Sample_Poisson_Disk); ImGui::SameLine();
+				ImGui::RadioButton("Farthest Point", &sampleType, Sample_Farthest_Point); ImGui::SameLine();
+				ImGui::RadioButton("Random", &sampleType, Sample_Random);
 				/* For Basis */
 				if (ImGui::Button("[3] Construct Basis", ImVec2(w, 0))) {
 					fastSpectrum.constructBasis();
