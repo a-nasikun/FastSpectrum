@@ -24,17 +24,17 @@ We use **CMake** for easy installation/deployment on your machine, by creating a
        Make sure you can locate the **glad.lib** and **glfw.lib** after compilation because you will need that to run libigl (viewer).
 3. **Configure** and generate our program (e.g. a Solutin in Visual Studio) using CMake (We use CMake 3.9.3 in our test). Be ready to specify/insert the **following directories** on which our program depends on:
    -    **IGL_DIR:** (`path/to/libigl`)                 
-       Location of the directory where you have libIGL (as libIGL is also downloaded when you clone our repository, it should be easy to locate. It is one of the 'subfolder' in the main directory of your local working directory.    
+       Location of the **main folder** where you have libIGL (as libIGL is also downloaded when you clone our repository, it should be easy to locate. It is one of the 'subfolder' in the main directory of your local working directory.    
    -    **EIGEN_DIR:** (`path/to/libigl/external/eigen`)                 
-    Location of the Eigen directory. If you clone recursively, then it will be at libigl/external/eigen.   
+    Location of the **main folder of** Eigen directory. If you clone recursively, then it will be at libigl/external/eigen.   
    -    **IMGUI_DIR**: (`path/to/libigl/external/imgui`)                 
-       Location of the Dear ImGUI directory, which should be at libigl/external/imgui   
+       Location of the **main folder of** Dear ImGUI directory, which should be at libigl/external/imgui   
    -    **GLFW_INCLUDE_DIR**: (`path/to/libigl/external/glfw`)                 
-        Path of the GLFW directory, which should be at libigl/external/glfw   
+        Path of the **main folder of** GLFW directory, which should be at libigl/external/glfw   
    -    **GLFW_LIBRARY_DIR**: (`path/to/glfw.lib/in/your/glfw/folder`)                 
         Location of **glfw.lib** file in your directory, this will differ for each machine/compiler. Please locate the file after you compile the glfw directory.    
    -    **GLAD_INCLUDE_DIR**: (`path/to/libigl/external/glad`)                 
-        Location of the GLAD directory, which should be at libigl/external/glad   
+        Location of the **main folder of** GLAD directory, which should be at libigl/external/glad   
    -    **GLAD_LIBRARY_DIR**: (`path/to/glad.lib/in/your/glad/folder`)                 
         Location of **glad.lib** file in your directory, this will differ for each machine/compiler. Please locate the file after you compile the glad directory. 
 4. It should be working and **running** without any problem.
