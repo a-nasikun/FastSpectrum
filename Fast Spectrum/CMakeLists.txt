@@ -23,12 +23,13 @@ set (GLAD_LIBRARY_DIR "" CACHE PATH "Library directory of GLAD")
 #Defining the system varibles where the include files reside
 include_directories(${IGL_DIR}/include/
 					${EIGEN_DIR}
-					${GLFW_INCLUDE_DIR}
-					${GLAD_INCLUDE_DIR}
+					${GLFW_INCLUDE_DIR}/include/
+					${GLAD_INCLUDE_DIR}/include/
+					${IMGUI_DIR}
 )
 
 #Defining the system varibles where the link libraries reside					
-link_directories(${GLFW_LIBS_DIR}
+link_directories(${GLFW_LIBRARY_DIR}
 				 ${GLAD_LIBRARY_DIR}
 )	
 
