@@ -9,28 +9,38 @@ Here is main construct of our approximation scheme:
    3. partition of unity  
 2. Solve the eigenproblem in subpace  
    1. low-dim eigenproblem
-   2. lift the eigenfunction
+   2. lift the eigenfunction (only when necessary/as requested since it's expensive for memory)
 
 Please note that this program requires **Eigen**, **LibIGL**, and an **eigensolver** (either **CUDA's cuSOLVER** or **Matlab's eigs** function).
 
 ## How to Compile and Run Our Implementation
 
-We use **CMake** for easy installation/deployment on your machine, by creating a CMakeFiles that hopefully do (almost) everything to make our code runs in your machine. 
+We use **CMake** for easy installation/deployment on your machine, by creating a CMakeFiles that hopefully do (almost) everything to make our code runs in your machine. Here are the steps to get our program runs in your machine:
 
-1. **Download** required libraries.
-   1. Eigen: http://eigen.tuxfamily.org/index.php?title=Main_Page
-   2. LibIGL: http://libigl.github.io/libigl/ (I'm using the version with commit ID=274dc2de4535e7a91aac782d088c0ee14c6d3f1e) 
-   5. GLFW: http://www.glfw.org/download.html   
-   6. CUDA (with cuSolver): https://developer.nvidia.com/cuda-zone
-2. Set **environment variables** related to those libraries
-   1. EIGEN_DIR = /path/to/eigen/main/directory
-   2. IGL_DIR = /path/to/libigl/main/directory
-   5. GLFW_DIR = /path/to/GLFW/main/directory
-3. Make sure you have [CMake](https://cmake.org/ "Download CMake") in your machine
-4. **Download/Clone** our repository
-5. Use CMake to **set-up** our implementation in your favorite IDE/system. 
+1. Clone our repository recursively (git clone https://github.com/a-nasikun/FastSpectrum --recursive)
+2. Compile dependencies on their respective subfolders using CMake:
+   1. glad: (/libigl/external/glad)
+   2. glfw: (/libigl/external/glfw)
+   Make sure you can locate the "glad.lib" and "glfw.lib" after compilation because you will need that to run libigl (viewer).
+3. Compile our repository/program using CMake (We use CMake 3.9.3 in our test). Be ready to specify/insert the following directory on which our program depends on:
+   1. **IGL_DIR:** (path/to/libigl)
+   Location of the directory where you have libIGL (as libIGL is also downloaded when you clone our repository, it should be easy to locate. It is one of the 'subfolder' in the main directory of your local working directory. 
+   2. **EIGEN_DIR:** (path/to/libigl/external/eigen)
+   Location of the Eigen directory. If you clone recursively, then it will be at libigl/external/eigen.
+   3. **IMGUI_DIR***: (path/to/libigl/external/imgui)
+   Location of the Dear ImGUI directory, which should be at libigl/external/imgui
+   4. **GLFW_INCLUDE_DIR**: (path/to/libigl/external/glfw) 
+   Path of the GLFW directory, which should be at libigl/external/glfw
+   5. **GLFW_LIBRARY_DIR**: (path/to/glfw.lib/in/your/glfw/folder)
+   Location of **glfw.lib** file in your directory, this will differ for each machine/compiler. Please locate the file after you compile the glfw directory. 
+   6. **GLAD_INCLUDE_DIR**: (path/to/libigl/external/glad)
+   Location of the GLAD directory, which should be at libigl/external/glad
+   7. **GLAD_LIBRARY_DIR**: (path/to/glad.lib/in/your/glad/folder)
+   Location of **glad.lib** file in your directory, this will differ for each machine/compiler. Please locate the file after you compile the glad directory. 
+4. It should be working and running okay.
+   If some headers are missing (perhaps because you locate the wrong folder), you could specify it directly in your application. For example, in Visual Studio you could go to "Project > Properties > C/C++ > General > Additional Include Directories"
 
-Having followed those steps, our program **should compile and run** well. If you have any problem compiling it, please drop me an **email** at a.nasikun[at]tudelft.nl.
+Having followed those steps, our program **should compile and run** well. This program is still under continuous development, so please expect some errors/bugs/mistakes within it. If you have any problem compiling it or having some nice suggestion(s) or question(s), please drop me an **email** at a.nasikun[at]tudelft.nl.
 
 ## SGP 2018 (Symposium on Geometry Processing 2018)
 
