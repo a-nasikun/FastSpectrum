@@ -46,12 +46,20 @@ public:
 
 	void getV(Eigen::MatrixXd &V);
 	void getF(Eigen::MatrixXi &F);
+	void getVF(Eigen::MatrixXd &V, Eigen::MatrixXi &F);
+	void getAvgEdgeLength(double &avgEdgeLength);
+	void getMassMatrix(Eigen::SparseMatrix<double> &M);
+	void getStiffnessMatrix(Eigen::SparseMatrix<double> &S);
+	void getLaplacian(Eigen::SparseMatrix<double> &S, Eigen::SparseMatrix<double> &M);
 	void getSamples(Eigen::VectorXi &Sample);
+	void getSampleSize(int &sampleSize);
 	void getFunctionBasis(Eigen::SparseMatrix<double> &U);
 	void getReducedEigVals(Eigen::VectorXd &reducedEigVals);
 	void getReducedEigVects(Eigen::MatrixXd &reducedEigVects);
 	void getApproxEigVects(Eigen::MatrixXd &approxEigVects);
-	void getReducedLaplacian(Eigen::SparseMatrix<double> Sbar, Eigen::SparseMatrix<double> Mbar);
+	void getReducedStiffnessMatrix(Eigen::SparseMatrix<double> &Sbar);
+	void getReducedMassMatrix(Eigen::SparseMatrix<double> &Mbar);
+	void getReducedLaplacian(Eigen::SparseMatrix<double> &Sbar, Eigen::SparseMatrix<double> &Mbar);
 	void setV(const Eigen::MatrixXd &V);
 	void setF(const Eigen::MatrixXi &F);
 	void setMesh(const Eigen::MatrixXd &V, const Eigen::MatrixXi &F);

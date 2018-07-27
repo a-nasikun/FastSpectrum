@@ -91,37 +91,84 @@ void showMenu(igl::opengl::glfw::Viewer &viewer, igl::opengl::glfw::imgui::ImGui
 				}
 				/* For Sampling */
 				if (ImGui::Button("[2] Sampling", ImVec2(w, 0))) {
-					fastSpectrum.setSample(numOfSample, (SamplingType) sampleType);
+					Eigen::SparseMatrix<double> M;
+					fastSpectrum.getMassMatrix(M);
+					fastSpectrum.getV(V);
+					if (M.rows() != V.rows() || V.rows() < 1) {
+						cout << "Error! Make sure you construct Laplacian matrices before creating samples." << endl;
+						return;
+					}
+
+					if (numOfSample < 1) {
+						cout << "Error! Sample cannot be smaller than 1. The program will assign 1000 as the default sampling." << endl;
+						numOfSample = 1000;
+					}
+					else if (numOfSample > V.rows()) {
+						cout << "Error! Sample cannot be larger than the number of vertices in the mesh. The program will assign 1000 as the default sampling.\n" << endl;
+						numOfSample = 1000;
+					}
+
+					fastSpectrum.setSample(numOfSample, (SamplingType)sampleType);
 					fastSpectrum.constructSample();
 				}
 				ImGui::RadioButton("Poisson Disk", &sampleType, Sample_Poisson_Disk); ImGui::SameLine();
-				ImGui::RadioButton("Farthest Point", &sampleType, Sample_Farthest_Point); 
+				ImGui::RadioButton("Farthest Point", &sampleType, Sample_Farthest_Point);
 				//ImGui::RadioButton("Random", &sampleType, Sample_Random);
+
 				ImGui::Text("Number of sample"); ImGui::SameLine();
-				static char numSample[5] = ""; ImGui::InputText("", numSample, 5);
+				static char numSample[6] = "1000"; ImGui::InputText("", numSample, 6);
 				numOfSample = atoi(numSample);
 
 				ImGui::Spacing(); ImGui::Spacing();
 
 				/* For Basis */
 				if (ImGui::Button("[3] Construct Basis", ImVec2(w, 0))) {
+					Eigen::SparseMatrix<double> M;
+					Eigen::VectorXi samples;
+					int numSample;
+					double avgEdgeLen;
+					fastSpectrum.getMassMatrix(M);
+					fastSpectrum.getSamples(samples);
+					fastSpectrum.getSampleSize(numSample);
+					fastSpectrum.getAvgEdgeLength(avgEdgeLen);
+					if (numSample < 1 || V.rows() != M.rows() || samples.maxCoeff() >= V.rows() || !(avgEdgeLen > 0.0)) {
+						cout << "Error! Make sure you execute previous steps before constructing basis functions." << endl;
+						return;
+					}
+
 					fastSpectrum.constructBasis();
 				}
 				/* For Low-Dim Problem */
 				if (ImGui::Button("[4] Construct Low-Dim Eigenproblem", ImVec2(w, 0))) {
+					Eigen::SparseMatrix<double> Basis;
+					int numSample;
+					fastSpectrum.getFunctionBasis(Basis);
+					fastSpectrum.getSampleSize(numSample);
+					if (Basis.cols() != numSample || Basis.rows()!=V.rows() || !(Basis.cols()>0)) {
+						cout << "Error! Make sure you execute previous steps before constructing Low-Dim Eigenproblem." << endl;
+						return;
+					}
+
 					fastSpectrum.constructRestrictedProblem();
 				}
 				/* Solving Low-Dim Eigenproblem */
 				if (ImGui::Button("[5] Solve Low-Dim Eigenproblem", ImVec2(w, 0))) {
+					Eigen::SparseMatrix<double> MBar, Basis;
+					fastSpectrum.getReducedMassMatrix(MBar);
+					fastSpectrum.getFunctionBasis(Basis);
+					if (Basis.cols() != MBar.cols() || MBar.cols()<1) {
+						cout << "Error! Make sure you execute previous steps before solving the Low-Dim Eigenproblem." << endl;
+						return;
+					}
+
 					fastSpectrum.solveRestrictedProblem();
 
 					// Show the first non-zero eigenvectors
-					eigToShow					= 1;
 					Eigen::SparseMatrix<double>	U;
 					fastSpectrum.getFunctionBasis(U);
 					fastSpectrum.getReducedEigVects(redEigVects);
-					printf("Basis %dx%d\n", U.rows(), U.cols());
-					printf("EigVect %dx%d\n", redEigVects.rows(), redEigVects.cols());
+					printf("Approximated (lifted) eigenvectors %dx%d\n", U.rows(), redEigVects.cols());
+					eigToShow					= 1;
 					Z							= U * redEigVects.col(eigToShow);
 					igl::jet(Z, true, vColor);
 					viewer.data().set_colors(vColor);
@@ -131,12 +178,18 @@ void showMenu(igl::opengl::glfw::Viewer &viewer, igl::opengl::glfw::imgui::ImGui
 				
 		ImGui::Spacing(); ImGui::Separator(); ImGui::Spacing(); ImGui::Spacing();
 
+		/* VISUALIZATION WINDOW */
 		if (ImGui::CollapsingHeader("Visualization##FastSpectrum", ImGuiTreeNodeFlags_DefaultOpen)){
 			/* For Sampling */
 			if (ImGui::Button("Show Samples", ImVec2((w), 0))) {
 				Eigen::VectorXi Sample;
 				fastSpectrum.getSamples(Sample);
 				boolShowSamples = !boolShowSamples;
+
+				if (Sample.maxCoeff() > V.rows()) {
+					cout << "Error! Make sure you compute new samples before viewing them." << endl;
+					return;
+				}
 
 				if (boolShowSamples) {	
 					for (int i = 0; i < Sample.size(); i++) {
@@ -159,6 +212,12 @@ void showMenu(igl::opengl::glfw::Viewer &viewer, igl::opengl::glfw::imgui::ImGui
 			if (ImGui::Button("- 1##Basis", ImVec2((w - 85.0f - 5.0*p) /4.f, 0))) {
 				Eigen::SparseMatrix<double> U;
 				fastSpectrum.getFunctionBasis(U);
+
+				if (U.rows() != V.rows()) {
+					cout << "Error! Make sure you have computed basis function on the current model." << endl;
+					return;
+				}
+
 				if (basisToShow > 0)
 					basisToShow--;
 				Z = U.col(basisToShow);
@@ -166,12 +225,18 @@ void showMenu(igl::opengl::glfw::Viewer &viewer, igl::opengl::glfw::imgui::ImGui
 				viewer.data().set_colors(vColor);
 			}
 			ImGui::SameLine(0, p);	
-			ImGui::Text("<%d>", basisToShow);
+			ImGui::Text("[%d]", basisToShow);
 			ImGui::SameLine(0, p);
 
 			if (ImGui::Button("+ 1##Basis", ImVec2((w - 85.0f - 5.0*p) / 4.f, 0))) {
 				Eigen::SparseMatrix<double> U;
 				fastSpectrum.getFunctionBasis(U);
+
+				if (U.rows() != V.rows()) {
+					cout << "Error! Make sure you have computed basis function on the current model." << endl;
+					return;
+				}
+
 				if (basisToShow < U.cols())
 					basisToShow++;
 
@@ -183,6 +248,12 @@ void showMenu(igl::opengl::glfw::Viewer &viewer, igl::opengl::glfw::imgui::ImGui
 			if (ImGui::Button("Rand", ImVec2((w - 85.0f - 5.0*p)*2/4.f, 0))) {
 				Eigen::SparseMatrix<double> U;
 				fastSpectrum.getFunctionBasis(U);
+
+				if (U.rows() != V.rows()) {
+					cout << "Error! Make sure you have computed basis function on the current model." << endl;
+					return;
+				}
+				
 				basisToShow = rand() % U.cols();
 				Z = U.col(basisToShow);
 				igl::jet(Z, true, vColor);
@@ -195,6 +266,12 @@ void showMenu(igl::opengl::glfw::Viewer &viewer, igl::opengl::glfw::imgui::ImGui
 				fastSpectrum.getReducedEigVects(redEigVects);
 				Eigen::SparseMatrix<double> U;
 				fastSpectrum.getFunctionBasis(U);
+
+				if (U.rows() != V.rows()) {
+					cout << "Error! Make sure you have computed the eigenfunctions on the current model." << endl;
+					return;
+				}
+
 				if (eigToShow > 0)
 					eigToShow--;
 
@@ -213,6 +290,12 @@ void showMenu(igl::opengl::glfw::Viewer &viewer, igl::opengl::glfw::imgui::ImGui
 				fastSpectrum.getReducedEigVects(redEigVects);
 				Eigen::SparseMatrix<double> U;
 				fastSpectrum.getFunctionBasis(U);
+				
+				if (U.rows() != V.rows()) {
+					cout << "Error! Make sure you have computed the eigenfunctions on the current model." << endl;
+					return;
+				}
+
 				if (eigToShow < redEigVects.cols())
 					eigToShow++;
 

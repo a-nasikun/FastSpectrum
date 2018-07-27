@@ -54,6 +54,7 @@ void FastSpectrum::computeEigenPairs(Eigen::MatrixXd &V, Eigen::MatrixXi &F, con
 	constructLaplacianMatrix();
 
 	// [2]	SAMPLING
+	this->setSampleNumber(numOfSamples);
 	constructSample();
 
 	// [3]	BASIS CONSTRUCTION
@@ -152,9 +153,41 @@ void FastSpectrum::getF(Eigen::MatrixXi &F)
 	F = this->F;
 }
 
+
+void FastSpectrum::getVF(Eigen::MatrixXd &V, Eigen::MatrixXi &F) {
+	getV(V);
+	getF(F);
+}
+
+void FastSpectrum::getAvgEdgeLength(double &avgEdgeLength)
+{
+	avgEdgeLength = this->avgEdgeLength;
+}
+
+void FastSpectrum::getMassMatrix(Eigen::SparseMatrix<double> &M) 
+{
+	M = this->M;
+}
+
+void FastSpectrum::getStiffnessMatrix(Eigen::SparseMatrix<double> &S)
+{
+	S = this->S; 
+}
+
+void FastSpectrum::getLaplacian(Eigen::SparseMatrix<double> &S, Eigen::SparseMatrix<double> &M)
+{
+	getStiffnessMatrix(S);
+	getMassMatrix(M);
+}
+
 void FastSpectrum::getSamples(Eigen::VectorXi &Sample)
 {
 	Sample = this->Sample;
+}
+
+void FastSpectrum::getSampleSize(int &sampleSize)
+{
+	sampleSize = this->sampleSize;
 }
 
 void FastSpectrum::getFunctionBasis(Eigen::SparseMatrix<double> &Basis)
@@ -177,10 +210,20 @@ void FastSpectrum::getApproxEigVects(Eigen::MatrixXd &approxEigVects)
 	approxEigVects = Basis*reducedEigVects;
 }
 
-void FastSpectrum::getReducedLaplacian(Eigen::SparseMatrix<double> SBar, Eigen::SparseMatrix<double> MBar)
+void FastSpectrum::getReducedStiffnessMatrix(Eigen::SparseMatrix<double> &Sbar)
 {
-	SBar = this->S_;
-	MBar = this->M_;
+	Sbar = this->S_;
+}
+
+void FastSpectrum::getReducedMassMatrix(Eigen::SparseMatrix<double> &Mbar)
+{
+	Mbar = this->M_;
+}
+
+void FastSpectrum::getReducedLaplacian(Eigen::SparseMatrix<double> &SBar, Eigen::SparseMatrix<double> &MBar)
+{
+	getReducedStiffnessMatrix(SBar);
+	getReducedMassMatrix(MBar);
 }
 
 void FastSpectrum::setV(const Eigen::MatrixXd &V){
