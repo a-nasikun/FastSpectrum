@@ -8,14 +8,14 @@ int main(int argc, char *argv[])
 	Eigen::MatrixXd redEigVects, V;
 	Eigen::VectorXd redEigVals;
 	Eigen::MatrixXi F;
-	string meshFile = "../Models/AIM894_Chinese Dragon/894_Chinese Dragon.obj";
+	string meshFile = "../FastSpectrum/Models/AIM894_Chinese Dragon/894_Chinese Dragon.obj";
 	
 	/* GUI FUNCTIONALITY */	
 	igl::opengl::glfw::Viewer			viewer;			// Set up main viewer
 	FastSpectrum						fastSpectrum;
 	igl::opengl::glfw::imgui::ImGuiMenu menu;			// Attach a menu plugin
 	viewer.plugins.push_back(&menu);									
-	IMGUI_CHECKVERSION();								// Setup Dear ImGui binding
+	//IMGUI_CHECKVERSION();								// Setup Dear ImGui binding
 	ImGui::CreateContext();
 	ImGui::StyleColorsDark();							// Set style
 

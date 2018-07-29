@@ -22,6 +22,7 @@ int					eigToShow		= 0;
 bool				boolShowSamples = false;
 static int			numOfSample		= 1000;
 static int			sampleType		= Sample_Poisson_Disk; 
+static int			dataToShow		= 0;
 
 void showMenu(igl::opengl::glfw::Viewer &viewer, igl::opengl::glfw::imgui::ImGuiMenu &menu, FastSpectrum &fastSpectrum) {
 	// MAIN WINDOW 	
@@ -50,8 +51,13 @@ void showMenu(igl::opengl::glfw::Viewer &viewer, igl::opengl::glfw::imgui::ImGui
 		if (ImGui::CollapsingHeader("Executing Algorithm", ImGuiTreeNodeFlags_DefaultOpen)){
 			if (ImGui::Button("Load##Mesh", ImVec2((w) / 2.f, 0))){
 				// Load mesh + display the correct mesh
+				int numOfModel = viewer.data_list.size();
 				viewer.open_dialog_load_mesh();
-				viewer.data() = viewer.data_list.at(0);
+				if (viewer.data_list.size() > numOfModel) {
+					viewer.data() = viewer.data_list.at(++dataToShow);
+					viewer.data_list.at(dataToShow - 1).clear();
+				}
+
 				V.resize(viewer.data().V.rows(), viewer.data().V.cols());
 				F.resize(viewer.data().F.rows(), viewer.data().F.cols());
 				V = viewer.data().V;
@@ -63,6 +69,10 @@ void showMenu(igl::opengl::glfw::Viewer &viewer, igl::opengl::glfw::imgui::ImGui
 
 				viewer.data().show_lines = false;
 				printf("A new mesh with %d vertices (%d faces).\n", V.rows(), F.rows());
+				viewer.data().set_mesh(V, F);
+				//for (int i = 0; i < viewer.data_list.size(); i++) {
+				//	printf("Data %d: %d (%d) \n", i, viewer.data_list.at(i).V.rows(), dataToShow);
+				//}
 			}
 			ImGui::SameLine(0, p);
 			if (ImGui::Button("Save##Mesh", ImVec2((w - p) / 2.f, 0))){
