@@ -81,8 +81,7 @@ void showMenu(igl::opengl::glfw::Viewer &viewer, igl::opengl::glfw::imgui::ImGui
 			if (ImGui::Button("Run Algorithm", ImVec2((w), 30))){
 				Eigen::SparseMatrix<double>	U;
 				fastSpectrum.computeEigenPairs( V, F, numOfSample, (SamplingType) sampleType, U, redEigVects, redEigVals);
-				//printf("Number of samples = %d\n", numOfSample);
-
+				
 				// Show the first non-zero eigenvectors
 				eigToShow					= 1;
 				Z							= U * redEigVects.col(eigToShow);
