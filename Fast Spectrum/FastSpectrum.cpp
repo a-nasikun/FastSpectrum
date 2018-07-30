@@ -60,15 +60,13 @@ void FastSpectrum::computeEigenPairs(Eigen::MatrixXd &V, Eigen::MatrixXi &F, con
 // Constructor: Vertices & Faces + With predefined sample type + with Basis call + reduced eigenbasis
 void FastSpectrum::computeEigenPairs(Eigen::MatrixXd &V, Eigen::MatrixXi &F, const int &numOfSamples, SamplingType sampleType, Eigen::SparseMatrix<double> &Basis, Eigen::MatrixXd &reducedEigVects, Eigen::VectorXd &reducedEigVals)
 {
-	//computeEigenPairs(V, F, numOfSamples, sampleType, reducedEigVects, reducedEigVals);
-	//Basis = this->Basis;
 	// [1.2] Constructing Laplacian Matrices (Stiffness and Mass-Matrix)
 	this->V = V;
 	this->F = F;
 	constructLaplacianMatrix();
 
 	// [2]	SAMPLING
-	this->setSampleNumber(numOfSamples);
+	this->setSample(numOfSamples, sampleType);
 	constructSample();
 
 	// [3]	BASIS CONSTRUCTION

@@ -1,5 +1,6 @@
 #include "FastSpectrum.h"
 #include "FastSpectrumGUI.h"
+#include "App_MeshFilter.h"
 
 /* [MAIN FUNCTION THAT CALLS EVERYTHING ELSE] */
 int main(int argc, char *argv[])
@@ -23,6 +24,13 @@ int main(int argc, char *argv[])
 	fastSpectrum.computeEigenPairs(meshFile, 1000, Basis, redEigVects, redEigVals);
 	fastSpectrum.getV(V);
 	fastSpectrum.getF(F);
+
+	/* MESH FILTER */
+	Eigen::MatrixXd Vnew;
+	Eigen::SparseMatrix<double> M;
+	fastSpectrum.getMassMatrix(M);
+	constructMeshFilter(V, M, Basis, redEigVects, Filter_LowPass, 200, 300, Vnew);
+	V = Vnew;
 			
 	menu.callback_draw_viewer_window = [&]()
 	{
