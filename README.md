@@ -18,6 +18,8 @@ Please note that this program requires **Eigen**, **LibIGL**, and an **eigensolv
 We use **CMake** for easy installation/deployment on your machine, by creating a CMakeFiles.txt that hopefully do (almost) everything to make our code runs in your machine. Here are the steps to get our program runs:
 
 1. **Clone** our repository **recursively** using `git clone https://github.com/a-nasikun/FastSpectrum --recursive`.
+4. Ensure that you have **CUDA set-up** on your machine. You can download from [here](https://developer.nvidia.com/cuda-zone "CUDA Developer Zone") if you haven't done so. 
+2. **Update dependency** submodule(s). Among many external libraries in LibIGL, we'll be using eigen, glfw, glad, and imgui only. During our test, the commit version of eigen in libIGL is an old one and doesn't support `Eigen::SparseMatrix.` We can solve this by simply updating the eigen, using `git submodule update --remote external\eigen`.
 2. **Compile** the following **dependencies** on their respective subfolders using CMake:
    1. glad (which is located at `/libigl/external/glad`)
    2. glfw (it is located at `/libigl/external/glfw`)   
@@ -37,7 +39,7 @@ We use **CMake** for easy installation/deployment on your machine, by creating a
         Location of the **main folder of** GLAD directory, which should be at libigl/external/glad   
    -    **GLAD_LIBRARY_DIR**: (`path/to/glad.lib/in/your/glad/folder`)                 
         Location of **glad.lib** file in your directory, this will differ for each machine/compiler. Please locate the file after you compile the glad directory. 
-4. It should be working and **running** without any problem.
+4. Run the Cmake command and it should be working and **running** without any problem.
    If some headers/libraries are missing (perhaps because you locate the wrong folder), you could specify it directly in your application. For example, in Visual Studio you could go to `Project >> Properties >> C/C++ >> General >> Additional Include Directories`.
 
 Having followed those steps, our program **should compile and run** well. This program is still under continuous development, so please expect some errors/bugs/mistakes within it. If you have any problem compiling it or having some nice suggestion(s) or question(s), please drop me an **email** at `a.nasikun[at]tudelft.nl`.
