@@ -79,13 +79,11 @@ void showMenu(igl::opengl::glfw::Viewer &viewer, igl::opengl::glfw::imgui::ImGui
 				viewer.open_dialog_save_mesh();
 			}
 			if (ImGui::Button("Run Algorithm", ImVec2((w), 30))){
-				//fastSpectrum.computeEigenPairs(meshFile, 1000, redEigVects, redEigVals);
-				fastSpectrum.computeEigenPairs( V, F, numOfSample, (SamplingType) sampleType, redEigVects, redEigVals);
+				Eigen::SparseMatrix<double>	U;
+				fastSpectrum.computeEigenPairs( V, F, numOfSample, (SamplingType) sampleType, U, redEigVects, redEigVals);
 				
 				// Show the first non-zero eigenvectors
 				eigToShow					= 1;
-				Eigen::SparseMatrix<double>	U;
-				fastSpectrum.getFunctionBasis(U);
 				Z							= U * redEigVects.col(eigToShow);
 				igl::jet(Z, true, vColor);
 				viewer.data().set_colors(vColor);

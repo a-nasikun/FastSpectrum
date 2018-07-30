@@ -23,7 +23,7 @@ int main(int argc, char *argv[])
 	fastSpectrum.computeEigenPairs(meshFile, 1000, Basis, redEigVects, redEigVals);
 	fastSpectrum.getV(V);
 	fastSpectrum.getF(F);
-		
+			
 	menu.callback_draw_viewer_window = [&]()
 	{
 		showMenu(viewer, menu, fastSpectrum);		
