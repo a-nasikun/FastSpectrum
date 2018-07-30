@@ -230,6 +230,13 @@ void showMenu(igl::opengl::glfw::Viewer &viewer, igl::opengl::glfw::imgui::ImGui
 
 				if (basisToShow > 0)
 					basisToShow--;
+
+				if (boolShowSamples) {
+					boolShowSamples = false;
+					viewer.data().clear();
+					viewer.data().set_mesh(V, F);
+				}
+
 				Z = U.col(basisToShow);
 				igl::jet(Z, true, vColor);
 				viewer.data().set_colors(vColor);
@@ -250,6 +257,12 @@ void showMenu(igl::opengl::glfw::Viewer &viewer, igl::opengl::glfw::imgui::ImGui
 				if (basisToShow < U.cols())
 					basisToShow++;
 
+				if (boolShowSamples) {
+					boolShowSamples = false;
+					viewer.data().clear();
+					viewer.data().set_mesh(V, F);
+				}
+
 				Z = U.col(basisToShow);
 				igl::jet(Z, true, vColor);
 				viewer.data().set_colors(vColor);
@@ -265,6 +278,13 @@ void showMenu(igl::opengl::glfw::Viewer &viewer, igl::opengl::glfw::imgui::ImGui
 				}
 				
 				basisToShow = rand() % U.cols();
+
+				if (boolShowSamples) {
+					boolShowSamples = false;
+					viewer.data().clear();
+					viewer.data().set_mesh(V, F);
+				}
+
 				Z = U.col(basisToShow);
 				igl::jet(Z, true, vColor);
 				viewer.data().set_colors(vColor);

@@ -21,6 +21,7 @@ void FastSpectrum::computeEigenPairs(const string &meshFile, const int &numOfSam
 void FastSpectrum::computeEigenPairs(const string &meshFile, const int &numOfSamples, SamplingType sampleType, Eigen::MatrixXd &reducedEigVects, Eigen::VectorXd &reducedEigVals)
 {
 	readMesh(meshFile, V, F);
+	if (V.rows() < 1) return;
 	computeEigenPairs(V, F, numOfSamples, sampleType, reducedEigVects, reducedEigVals);
 }
 

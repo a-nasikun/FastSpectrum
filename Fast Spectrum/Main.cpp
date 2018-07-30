@@ -4,11 +4,11 @@
 /* [MAIN FUNCTION THAT CALLS EVERYTHING ELSE] */
 int main(int argc, char *argv[])
 {
-
+	Eigen::SparseMatrix<double> Basis;
 	Eigen::MatrixXd redEigVects, V;
 	Eigen::VectorXd redEigVals;
 	Eigen::MatrixXi F;
-	string meshFile = "../FastSpectrum/Models/AIM894_Chinese Dragon/894_Chinese Dragon.obj";
+	string meshFile; 
 	
 	/* GUI FUNCTIONALITY */	
 	igl::opengl::glfw::Viewer			viewer;			// Set up main viewer
@@ -19,7 +19,8 @@ int main(int argc, char *argv[])
 	ImGui::CreateContext();
 	ImGui::StyleColorsDark();							// Set style
 
-	fastSpectrum.computeEigenPairs(meshFile, 1000, redEigVects, redEigVals);
+	meshFile = "../Models/AIM894_Chinese Dragon/894_Chinese Dragon.obj";
+	fastSpectrum.computeEigenPairs(meshFile, 1000, Basis, redEigVects, redEigVals);
 	fastSpectrum.getV(V);
 	fastSpectrum.getF(F);
 		
