@@ -1,6 +1,7 @@
 #include "FastSpectrum.h"
 #include "FastSpectrumGUI.h"
 #include "App_MeshFilter.h"
+#include "App_DiffusionDistance.h"
 
 /* [MAIN FUNCTION THAT CALLS EVERYTHING ELSE] */
 int main(int argc, char *argv[])
@@ -20,7 +21,7 @@ int main(int argc, char *argv[])
 	ImGui::CreateContext();
 	ImGui::StyleColorsDark();							// Set style
 
-	meshFile = "../Models/AIM894_Chinese Dragon/894_Chinese Dragon.obj";
+	meshFile = "../FastSpectrum/Models/AIM894_Chinese Dragon/894_Chinese Dragon.obj";
 	fastSpectrum.computeEigenPairs(meshFile, 1000, Basis, redEigVects, redEigVals);
 	fastSpectrum.getV(V);
 	fastSpectrum.getF(F);
@@ -31,6 +32,16 @@ int main(int argc, char *argv[])
 	fastSpectrum.getMassMatrix(M);
 	constructMeshFilter(V, M, Basis, redEigVects, Filter_LowPass, 200, 300, Vnew);
 	V = Vnew;
+	printf("Mesh filter with Low Pass filter produced %d-by-%d vertices\n", V.rows(), V.cols());
+
+	/* DIFFUSION DISTANCE */
+	vector<vector<Eigen::VectorXd>> DiffTensor;
+	vector<double> t;
+	t.push_back(0.10);
+	t.push_back(0.25);
+	t.push_back(0.50);
+	constructDiffusionTensor(Basis, redEigVects, redEigVals, V, 500, t, DiffTensor);
+	printf("Diffusion tensor with %d different values of t and 500 eigenpairs. Size=[%d, %d, %d].\n", t.size(), DiffTensor.size(), DiffTensor[0].size(), DiffTensor[0][0].size());
 			
 	menu.callback_draw_viewer_window = [&]()
 	{
