@@ -49,6 +49,8 @@ add_executable(${PROJECT_NAME}
 	Utility.cpp 
 	Visualization.h 
 	Visualization.cpp
+	App_MeshFilter.h
+	App_MeshFilter.cpp
 )
 
 target_link_libraries(
