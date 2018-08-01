@@ -28,18 +28,18 @@ int main(int argc, char *argv[])
 
 	meshFile = "../Models/AIM894_Chinese Dragon/894_Chinese Dragon.obj";
 	//fastSpectrum.computeEigenPairs(meshFile, 1000, Basis, redEigVects, redEigVals);
-	fastSpectrum.computeEigenPairs(meshFile, 102, Sample_Farthest_Point, Basis, redEigVects, redEigVals);
+	fastSpectrum.computeEigenPairs(meshFile, 1000, Sample_Farthest_Point, Basis, redEigVects, redEigVals);
 
 	fastSpectrum.getV(V);
 	fastSpectrum.getF(F);
 
 	/* MESH FILTER */
-	//Eigen::MatrixXd Vnew;
-	//Eigen::SparseMatrix<double> M;
-	//fastSpectrum.getMassMatrix(M);
-	//constructMeshFilter(V, M, Basis, redEigVects, Filter_LowPass, 10, 10, Vnew);
-	//V = Vnew;
-	//printf("Mesh filter with Low Pass filter produced %d-by-%d vertices\n", V.rows(), V.cols());
+	Eigen::MatrixXd Vnew;
+	Eigen::SparseMatrix<double> M;
+	fastSpectrum.getMassMatrix(M);
+	constructMeshFilter(V, M, Basis, redEigVects, Filter_LowPass, 10, 10, Vnew);
+	V = Vnew;
+	printf("Mesh filter with Low Pass filter produced %d-by-%d vertices\n", V.rows(), V.cols());
 
 	/* DIFFUSION DISTANCE */
 	//vector<vector<Eigen::VectorXd>> DiffTensor;

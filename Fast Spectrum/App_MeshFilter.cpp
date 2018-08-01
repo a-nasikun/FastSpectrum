@@ -34,10 +34,18 @@ void constructMeshFilter(const Eigen::MatrixXd &V, const Eigen::SparseMatrix<dou
 		break;
 	}
 
-	projectSpace(V, U, M, LDEigVec, noFilter, Vref);
-	projectSpace(V, U, M, LDEigVec, filter, Vfilter);
-	Vresidu = Vfilter - Vref;
-	Vout = Vfilter + (double)filter(filter.size()-1) * Vresidu;
+	
+	if (filterType == Filter_Linear || filterType == Filter_LowPass) {
+		projectSpace(V, U, M, LDEigVec, filter, Vfilter);
+		Vout = Vfilter;
+	}
+	else {
+		projectSpace(V, U, M, LDEigVec, noFilter, Vref);
+		projectSpace(V, U, M, LDEigVec, filter, Vfilter);
+		Vresidu = Vfilter - Vref;
+		Vout = Vfilter + (double)filter(filter.size()-1) * Vresidu;
+	}
+	printf("Filter last =%.5f\n", filter(filter.size() - 1));
 }
 
 /* Obtain projection of every columns of V (x,y,z) */
@@ -91,7 +99,7 @@ void createLowPassFilter(const int &k, const int &m, Eigen::VectorXd &filterCoef
 	}
 
 	for (int i = k; i < m; i++) {
-		filterCoef(i) = scale * (1.0 - (1.0 / (double)((m - k)*(m - k))) * (double)((i - k)*(i - k)));
+		filterCoef(i) = scale * (1.0 - (1.0 / (double)((m-1 - k)*(m-1 - k))) * (double)((i - k)*(i - k)));
 	}
 
 }

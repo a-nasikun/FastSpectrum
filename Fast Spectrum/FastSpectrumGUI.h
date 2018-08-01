@@ -16,6 +16,7 @@
 #include <igl/opengl/glfw/imgui/ImGuiHelpers.h>
 
 #include "FastSpectrum.h"
+#include "App_MeshFilter.h"
 #include "App_VariableOperator.h"
 
 int					basisToShow		= 0;
@@ -25,6 +26,7 @@ static bool			boolDiffDist	= false, boolMeshFilter = false, boolVarOperator = fa
 static int			numOfSample		= 1000;
 static int			sampleType		= Sample_Poisson_Disk; 
 static int			dataToShow		= 0;
+static int			filterType		= Filter_LowPass;
 static float		varOpT			= 0.25f;
 
 static VariableOperator varOperator;
@@ -378,6 +380,35 @@ void showMenu(igl::opengl::glfw::Viewer &viewer, igl::opengl::glfw::imgui::ImGui
 			}
 		}
 
+		// WINDOW FOR MESH FILTERING
+		if (boolMeshFilter) {
+			ImGui::SetNextWindowPos(ImVec2((5.0f + menuWindowLeft + menuWindowWidth + 5.0f) * menu.menu_scaling(), 5.0f), ImGuiSetCond_FirstUseEver);
+			ImGui::SetNextWindowSize(ImVec2(menuWindowWidth, 200), ImGuiSetCond_FirstUseEver);
+			ImGui::Begin("Mesh Filtering", nullptr, ImGuiWindowFlags_NoSavedSettings);
+
+			float w2 = ImGui::GetContentRegionAvailWidth();
+			float p2 = ImGui::GetStyle().FramePadding.x;
+
+			ImGui::RadioButton("Low-Pass Linear", &filterType, Filter_Linear);
+			ImGui::RadioButton("Low-Pass Quadratic", &filterType, Filter_LowPass);
+			ImGui::RadioButton("Amplify Higher Freq", &filterType, Filter_Polynomial);
+			ImGui::RadioButton("Amplify Middle Freq", &filterType, Filter_QuadMiddle);
+			ImGui::RadioButton("Suppress Middle Freq", &filterType, Filter_QuadMiddleInverse);
+
+			Eigen::SparseMatrix<double> MassM, BasisM;
+			Eigen::MatrixXd Vnew, Vold;
+
+			if (ImGui::Button("Compute Mesh Filter", ImVec2(w2,30))) {
+				fastSpectrum.getV(Vold);
+				fastSpectrum.getMassMatrix(MassM);
+				fastSpectrum.getFunctionBasis(BasisM);
+				fastSpectrum.getReducedEigVects(redEigVects);
+				constructMeshFilter(Vold, MassM, BasisM, redEigVects, (FilterType)filterType, 50, 100, Vnew);
+				viewer.data().set_mesh(Vnew, F);
+			}
+
+			ImGui::End();
+		}
 
 		// WINDOW FOR VARIABLE OPERATOR
 		if (boolVarOperator) {
@@ -390,7 +421,6 @@ void showMenu(igl::opengl::glfw::Viewer &viewer, igl::opengl::glfw::imgui::ImGui
 			
 			// For Variable-Operator
 			Eigen::MatrixXd appEigVects;
-
 			if (ImGui::Button("Initiate Variable Operator", ImVec2((w2), 30))) {
 				varOperator.constructVariableOperator(V, F, 125, Sample_Farthest_Point, varOpT, appEigVects);
 				varOperator.recomputeVarOpEigVects(varOpT, appEigVects);
@@ -447,6 +477,7 @@ void showMenu(igl::opengl::glfw::Viewer &viewer, igl::opengl::glfw::imgui::ImGui
 			}
 			ImGui::End();
 		}
+
 
 		ImGui::End();
 	}
