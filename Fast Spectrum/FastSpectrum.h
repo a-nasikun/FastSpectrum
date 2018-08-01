@@ -74,8 +74,8 @@ public:
 	void setSampleNumber(const int &sampleSize);
 	void setSampleType(SamplingType sampleType);
 
-private:
-	/* [CLAS VARIABLES] */
+protected:
+	/* [CLASS VARIABLES] */
 	Eigen::SparseMatrix<double>		S, M, S_, M_, Basis, DistanceTableSpM;
 	Eigen::MatrixXd					V, reducedEigVects;
 	Eigen::MatrixXi					F;
