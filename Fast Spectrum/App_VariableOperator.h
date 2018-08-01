@@ -12,7 +12,7 @@ public:
 
 	void constructVariableOperator(Eigen::MatrixXd &V, Eigen::MatrixXi &F, const int &numOfSamples, SamplingType sampleType, const int &t, Eigen::MatrixXd &approxEigVects, Eigen::VectorXd &approxEigVals);
 	void constructVariableOperator(Eigen::MatrixXd &V, Eigen::MatrixXi &F, const int &numOfSamples, SamplingType sampleType, const int &t, Eigen::MatrixXd &approxEigVects);
-	void recomputeVarOpEigVects(const int &t, Eigen::MatrixXd &approxEigVects);
+	void recomputeVarOpEigVects(const double &t, Eigen::MatrixXd &approxEigVects);
 
 	void constructRestrictedProblem();
 	void solveRestrictedProblem();

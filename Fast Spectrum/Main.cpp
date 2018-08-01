@@ -4,6 +4,10 @@
 #include "App_DiffusionDistance.h"
 #include "App_VariableOperator.h"
 
+//int ets = 1;
+//VariableOperator	varOp;
+Eigen::MatrixXd		approxEigVects;
+
 /* [MAIN FUNCTION THAT CALLS EVERYTHING ELSE] */
 int main(int argc, char *argv[])
 {
@@ -30,12 +34,12 @@ int main(int argc, char *argv[])
 	fastSpectrum.getF(F);
 
 	/* MESH FILTER */
-	Eigen::MatrixXd Vnew;
-	Eigen::SparseMatrix<double> M;
-	fastSpectrum.getMassMatrix(M);
-	constructMeshFilter(V, M, Basis, redEigVects, Filter_LowPass, 10, 10, Vnew);
-	V = Vnew;
-	printf("Mesh filter with Low Pass filter produced %d-by-%d vertices\n", V.rows(), V.cols());
+	//Eigen::MatrixXd Vnew;
+	//Eigen::SparseMatrix<double> M;
+	//fastSpectrum.getMassMatrix(M);
+	//constructMeshFilter(V, M, Basis, redEigVects, Filter_LowPass, 10, 10, Vnew);
+	//V = Vnew;
+	//printf("Mesh filter with Low Pass filter produced %d-by-%d vertices\n", V.rows(), V.cols());
 
 	/* DIFFUSION DISTANCE */
 	//vector<vector<Eigen::VectorXd>> DiffTensor;
@@ -47,12 +51,8 @@ int main(int argc, char *argv[])
 	//printf("Diffusion tensor with %d different values of t and 500 eigenpairs. Size=[%d, %d, %d].\n", t.size(), DiffTensor.size(), DiffTensor[0].size(), DiffTensor[0][0].size());
 			
 	/* VARIABLE OPERATOR */
-	VariableOperator	varOp;
-	Eigen::MatrixXd		approxEigVects;
-
-	varOp.constructVariableOperator(V, F, 100, Sample_Farthest_Point, 0.5, approxEigVects);	
-
-
+	//varOp.constructVariableOperator(V, F, 100, Sample_Farthest_Point, 0.5, approxEigVects);	
+	
 	menu.callback_draw_viewer_window = [&]()
 	{
 		showMenu(viewer, menu, fastSpectrum);		
@@ -62,8 +62,27 @@ int main(int argc, char *argv[])
 	/* User interaction via keyboard */
 	const auto &key_down = [](igl::opengl::glfw::Viewer &viewer, unsigned char key, int mod)->bool
 	{
+		Eigen::VectorXd Z;
+		Eigen::MatrixXd vColor;
+
 		switch (key)
 		{
+		case 'a':
+		case 'A':
+			//ets = max(0, ets-1);
+			//varOp.recomputeVarOpEigVects((double)ets / 100.0, approxEigVects);
+			//Z = approxEigVects.col(2);
+			//igl::jet(Z, true, vColor);
+			//viewer.data().set_colors(vColor);
+			break;
+		case 'd':
+		case 'D':
+			//ets = min(100, ets + 1);
+			//varOp.recomputeVarOpEigVects((double)ets / 100.0, approxEigVects);
+			//Z = approxEigVects.col(2);
+			//igl::jet(Z, true, vColor);
+			//viewer.data().set_colors(vColor);
+			break;
 		default:
 			return false;
 		}
@@ -75,12 +94,6 @@ int main(int argc, char *argv[])
 
 	viewer.callback_init			= [&](igl::opengl::glfw::Viewer &viewer){return false;};
 	viewer.data().set_mesh(V, F);
-
-	Eigen::VectorXd Z = approxEigVects.col(2);
-	Eigen::MatrixXd vColor;
-	igl::jet(Z, true, vColor);
-	printf("approx size=%dx%d, Z=%d, color=%dx%d, V=%dx%d\n", approxEigVects.rows(), approxEigVects.cols(), Z.size(), vColor.rows(), vColor.cols(), V.rows(), V.cols());
-	viewer.data().set_colors(vColor);
 
 	viewer.callback_key_down		= key_down;
 

@@ -16,13 +16,18 @@
 #include <igl/opengl/glfw/imgui/ImGuiHelpers.h>
 
 #include "FastSpectrum.h"
+#include "App_VariableOperator.h"
 
 int					basisToShow		= 0;
-int					eigToShow		= 0;
+int					eigToShow		= 1;
 bool				boolShowSamples = false;
+static bool			boolDiffDist	= false, boolMeshFilter = false, boolVarOperator = false;
 static int			numOfSample		= 1000;
 static int			sampleType		= Sample_Poisson_Disk; 
 static int			dataToShow		= 0;
+static float		varOpT			= 0.25f;
+
+static VariableOperator varOperator;
 
 void showMenu(igl::opengl::glfw::Viewer &viewer, igl::opengl::glfw::imgui::ImGuiMenu &menu, FastSpectrum &fastSpectrum) {
 	// MAIN WINDOW 	
@@ -31,7 +36,7 @@ void showMenu(igl::opengl::glfw::Viewer &viewer, igl::opengl::glfw::imgui::ImGui
 		Eigen::MatrixXd redEigVects, V = viewer.data().V;
 		Eigen::VectorXd redEigVals;
 		Eigen::MatrixXi F = viewer.data().F;
-
+		
 		// Variables For Viewer visualization
 		float	menuWindowLeft		= 0.f,
 				menuWindowWidth		= 200.f,
@@ -335,6 +340,112 @@ void showMenu(igl::opengl::glfw::Viewer &viewer, igl::opengl::glfw::imgui::ImGui
 			/* Overlays */
 			ImGui::Checkbox("Wireframe", &(viewer.data().show_lines));
 			ImGui::Checkbox("Fill Faces", &(viewer.data().show_faces));
+		}
+		
+		ImGui::Spacing(); ImGui::Separator(); ImGui::Spacing(); ImGui::Spacing();
+
+		/* APPLICATION LAUNCHER */
+		if (ImGui::CollapsingHeader("Application Launcher")) {
+			float w = ImGui::GetContentRegionAvailWidth();
+			float p = ImGui::GetStyle().FramePadding.x;
+
+			/* For Sampling */
+			if (ImGui::Button("Launch \"Diffusion Distance\"", ImVec2((w), 0))) {
+				boolDiffDist = !boolDiffDist;
+				if (boolDiffDist) {
+					boolMeshFilter = false;
+					boolVarOperator = false;
+				}
+				std::cout << "Launching Diffusion Distance!" << std::endl;
+			}
+
+			if (ImGui::Button("Launch \"Mesh Filtering\"", ImVec2((w), 0))) {
+				boolMeshFilter = !boolMeshFilter;
+				if (boolMeshFilter) {
+					boolDiffDist = false;
+					boolVarOperator = false;
+				}
+				std::cout << "Launching Mesh Filtering" << std::endl;
+			}
+
+			if (ImGui::Button("Launch \"Variable-Operator\"", ImVec2((w), 0))) {
+				boolVarOperator = !boolVarOperator;
+				if (boolVarOperator) {
+					boolDiffDist = false;
+					boolMeshFilter = false;
+				}
+				std::cout << "Launching Variable-Operator" << std::endl;
+			}
+		}
+
+
+		// WINDOW FOR VARIABLE OPERATOR
+		if (boolVarOperator) {
+			ImGui::SetNextWindowPos(ImVec2((5.0f+menuWindowLeft+menuWindowWidth+5.0f) * menu.menu_scaling(), 5.0f), ImGuiSetCond_FirstUseEver);
+			ImGui::SetNextWindowSize(ImVec2(menuWindowWidth, 150), ImGuiSetCond_FirstUseEver);
+			ImGui::Begin("Variable Operator", nullptr, ImGuiWindowFlags_NoSavedSettings);
+
+			float w2 = ImGui::GetContentRegionAvailWidth();
+			float p2 = ImGui::GetStyle().FramePadding.x;
+			
+			// For Variable-Operator
+			Eigen::MatrixXd appEigVects;
+
+			if (ImGui::Button("Initiate Variable Operator", ImVec2((w2), 30))) {
+				varOperator.constructVariableOperator(V, F, 125, Sample_Farthest_Point, varOpT, appEigVects);
+				varOperator.recomputeVarOpEigVects(varOpT, appEigVects);
+				Z = appEigVects.col(eigToShow);
+				if (eigToShow>0)
+					igl::jet(Z, true, vColor);
+				else
+					igl::jet(Z, false, vColor);		// for zero-th eigenvector, it doesn't make sense to scale, since they're supposed to be constant
+				viewer.data().set_colors(vColor);
+			}
+
+			ImGui::Spacing(); ImGui::Spacing();
+
+			ImGui::SliderFloat("\'t\' value", &varOpT, 0.0f, 1.0f, "%.2f");
+			if (ImGui::Button("Recompute", ImVec2((w2), 0))) {
+				varOperator.recomputeVarOpEigVects(varOpT, appEigVects);
+
+				Z = appEigVects.col(eigToShow);
+				if (eigToShow>0)
+					igl::jet(Z, true, vColor);
+				else
+					igl::jet(Z, false, vColor);		// for zero-th eigenvector, it doesn't make sense to scale, since they're supposed to be constant
+				viewer.data().set_colors(vColor);
+			}
+
+			/* For Eigenvectors */
+			ImGui::Text("Show Eigenvect");
+			ImGui::SameLine(0, p2);
+			if (ImGui::Button("- 1##EigVec2", ImVec2((w2 - 90.0f - 3.0f * p2) / 2.f, 0))) {
+				varOperator.getApproxEigVects(appEigVects);
+				printf("[%d] Approximated lifted eigenvectors: %dx%d\n", eigToShow, appEigVects.rows(), appEigVects.cols());
+				if (eigToShow > 0)
+					eigToShow--;
+
+				Z = appEigVects.col(eigToShow);
+				if (eigToShow>0)
+					igl::jet(Z, true, vColor);
+				else
+					igl::jet(Z, false, vColor);		// for zero-th eigenvector, it doesn't make sense to scale, since they're supposed to be constant
+				viewer.data().set_colors(vColor);
+			}
+			ImGui::SameLine(0, p2);
+			ImGui::Text("[%d]", eigToShow);
+			ImGui::SameLine(0, p2);
+
+			if (ImGui::Button("+ 1##EigVec2", ImVec2((w2 - 90.0f - 3.0f * p2) / 2.f, 0))) {	
+				varOperator.getApproxEigVects(appEigVects);
+				printf("[%d] Approximated lifted eigenvectors: %dx%d\n", eigToShow, appEigVects.rows(), appEigVects.cols());
+				if (eigToShow < appEigVects.cols())
+					eigToShow++;
+				Z = appEigVects.col(eigToShow);
+				igl::jet(Z, true, vColor);
+				viewer.data().set_colors(vColor);
+			}
+			ImGui::End();
 		}
 
 		ImGui::End();

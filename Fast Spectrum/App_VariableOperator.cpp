@@ -49,7 +49,7 @@ void VariableOperator::constructVariableOperator(Eigen::MatrixXd &V, Eigen::Matr
 	approxEigVects = Basis * reducedEigVects;
 }
 
-void VariableOperator::recomputeVarOpEigVects(const int &t, Eigen::MatrixXd &approxEigVects)
+void VariableOperator::recomputeVarOpEigVects(const double &t, Eigen::MatrixXd &approxEigVects)
 {
 	this->t = t;
 	AS = t*A + (1.0 - t)*S;
