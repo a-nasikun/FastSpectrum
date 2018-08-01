@@ -51,6 +51,8 @@ add_executable(${PROJECT_NAME}
 	Visualization.cpp
 	App_MeshFilter.h
 	App_MeshFilter.cpp
+	App_DiffusionDistance.h
+	App_DiffusionDistance.cpp
 )
 
 target_link_libraries(

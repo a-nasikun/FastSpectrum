@@ -23,7 +23,7 @@ int main(int argc, char *argv[])
 
 	meshFile = "../Models/AIM894_Chinese Dragon/894_Chinese Dragon.obj";
 	//fastSpectrum.computeEigenPairs(meshFile, 1000, Basis, redEigVects, redEigVals);
-	fastSpectrum.computeEigenPairs(meshFile, 5000, Sample_Farthest_Point, Basis, redEigVects, redEigVals);
+	fastSpectrum.computeEigenPairs(meshFile, 1000, Sample_Farthest_Point, Basis, redEigVects, redEigVals);
 
 	fastSpectrum.getV(V);
 	fastSpectrum.getF(F);
@@ -32,18 +32,18 @@ int main(int argc, char *argv[])
 	Eigen::MatrixXd Vnew;
 	Eigen::SparseMatrix<double> M;
 	fastSpectrum.getMassMatrix(M);
-	constructMeshFilter(V, M, Basis, redEigVects, Filter_QuadMiddle, 1000, 3000, Vnew);
+	constructMeshFilter(V, M, Basis, redEigVects, Filter_LowPass, 10, 10, Vnew);
 	V = Vnew;
 	printf("Mesh filter with Low Pass filter produced %d-by-%d vertices\n", V.rows(), V.cols());
 
 	/* DIFFUSION DISTANCE */
-	vector<vector<Eigen::VectorXd>> DiffTensor;
-	vector<double> t;
-	t.push_back(0.10);
-	t.push_back(0.25);
-	t.push_back(0.50);
-	constructDiffusionTensor(Basis, redEigVects, redEigVals, V, 500, t, DiffTensor);
-	printf("Diffusion tensor with %d different values of t and 500 eigenpairs. Size=[%d, %d, %d].\n", t.size(), DiffTensor.size(), DiffTensor[0].size(), DiffTensor[0][0].size());
+	//vector<vector<Eigen::VectorXd>> DiffTensor;
+	//vector<double> t;
+	//t.push_back(0.10);
+	//t.push_back(0.25);
+	//t.push_back(0.50);
+	//constructDiffusionTensor(Basis, redEigVects, redEigVals, V, 500, t, DiffTensor);
+	//printf("Diffusion tensor with %d different values of t and 500 eigenpairs. Size=[%d, %d, %d].\n", t.size(), DiffTensor.size(), DiffTensor[0].size(), DiffTensor[0][0].size());
 			
 	menu.callback_draw_viewer_window = [&]()
 	{
