@@ -21,7 +21,8 @@ int main(int argc, char *argv[])
 	ImGui::StyleColorsDark();							// Set style
 
 	meshFile = "../Models/AIM894_Chinese Dragon/894_Chinese Dragon.obj";
-	fastSpectrum.computeEigenPairs(meshFile, 1000, Basis, redEigVects, redEigVals);
+	//fastSpectrum.computeEigenPairs(meshFile, 1000, Basis, redEigVects, redEigVals);
+	fastSpectrum.computeEigenPairs(meshFile, 5000, Sample_Farthest_Point, Basis, redEigVects, redEigVals);
 	fastSpectrum.getV(V);
 	fastSpectrum.getF(F);
 
@@ -29,7 +30,7 @@ int main(int argc, char *argv[])
 	Eigen::MatrixXd Vnew;
 	Eigen::SparseMatrix<double> M;
 	fastSpectrum.getMassMatrix(M);
-	constructMeshFilter(V, M, Basis, redEigVects, Filter_LowPass, 200, 300, Vnew);
+	constructMeshFilter(V, M, Basis, redEigVects, Filter_QuadMiddle, 1000, 3000, Vnew);
 	V = Vnew;
 			
 	menu.callback_draw_viewer_window = [&]()
