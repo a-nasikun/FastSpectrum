@@ -136,7 +136,7 @@ void FastSpectrum::constructBasis() {
 	double	distRatio = sqrt(pow(1.1, 2) + pow(0.7, 2));			// A heuristic to make the support around 10.00 (i.e. number of non-zeros per row)
 	maxNeighDist = distRatio * sqrt((double)V.rows() / (double)Sample.size()) * avgEdgeLength;
 	constructBasisFunctions();
-	formPartitionOfUnity(Basis);
+	formPartitionOfUnity();
 }
 
 void FastSpectrum::constructRestrictedProblem() {
@@ -373,7 +373,7 @@ void FastSpectrum::constructBasisFunctions()
 }
 
 /* [Form partition of unity for the basis matrix Basis] */
-void FastSpectrum::formPartitionOfUnity(Eigen::SparseMatrix<double> &Basis)
+void FastSpectrum::formPartitionOfUnity()
 {
 	/* Temporary variables */
 	vector<Eigen::Triplet<double>>		diagTrip;
