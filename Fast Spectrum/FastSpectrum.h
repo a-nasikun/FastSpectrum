@@ -66,6 +66,7 @@ public:
 	void getReducedStiffnessMatrix(Eigen::SparseMatrix<double> &Sbar);
 	void getReducedMassMatrix(Eigen::SparseMatrix<double> &Mbar);
 	void getReducedLaplacian(Eigen::SparseMatrix<double> &Sbar, Eigen::SparseMatrix<double> &Mbar);
+
 	void setV(const Eigen::MatrixXd &V);
 	void setF(const Eigen::MatrixXi &F);
 	void setMesh(const Eigen::MatrixXd &V, const Eigen::MatrixXi &F);
@@ -89,14 +90,10 @@ protected:
 	/* [SUPPLEMENTARY FUNCTIONS] */
 	void readMesh(const string &meshFile, Eigen::MatrixXd &V, Eigen::MatrixXi &F);
 	void constructBasisFunctions();
-	void formPartitionOfUnity(Eigen::SparseMatrix<double> &Basis);
+	void formPartitionOfUnity();
 	void computeEigenPair();
 	void normalizeReducedEigVects();
 };
-
-
-
-
 
 #endif // !FAST_SPECTRUM_H
 
