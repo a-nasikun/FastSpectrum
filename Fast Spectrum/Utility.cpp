@@ -31,7 +31,7 @@ void initiateAdM(Eigen::MatrixXd &V, Eigen::MatrixXi &F, vector<set<int>> &AM) {
 /* Precompute the distance between a vertex and its neighbor(s), for a bit of speed up */
 void initiateDistTableSpM(Eigen::MatrixXd &V, const vector<set<int>> &AM, Eigen::SparseMatrix<double> &DistanceTable)
 {
-	std::vector<Eigen::Triplet<double>> locTrip;
+	vector<Eigen::Triplet<double>> locTrip;
 	locTrip.reserve(V.rows());
 	
 	DistanceTable.resize(V.rows(), V.rows());
