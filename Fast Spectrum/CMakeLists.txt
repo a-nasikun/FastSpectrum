@@ -53,6 +53,8 @@ add_executable(${PROJECT_NAME}
 	App_MeshFilter.cpp
 	App_DiffusionDistance.h
 	App_DiffusionDistance.cpp
+	App_VariableOperator.h
+	App_VariableOperator.cpp
 )
 
 target_link_libraries(
