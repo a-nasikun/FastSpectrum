@@ -40,9 +40,9 @@ void constructVoxelSample(igl::opengl::glfw::Viewer &viewer, const Eigen::Matrix
 	vector<vector<vector<vector<int>>>> v4;
 
 	// Creating empty vectors
-	for (int i = 0; i < n; i++) {v2.push_back(v1);}
-	for (int i = 0; i < n; i++) {v3.push_back(v2);}
-	for (int i = 0; i < n; i++) {v4.push_back(v3);}
+	for (int i = 0; i < n; i++) { v2.push_back(v1); }
+	for (int i = 0; i < n; i++) { v3.push_back(v2); }
+	for (int i = 0; i < n; i++) { v4.push_back(v3); }
 
 
 	//Put each vertex to its corresponding box
@@ -52,7 +52,7 @@ void constructVoxelSample(igl::opengl::glfw::Viewer &viewer, const Eigen::Matrix
 		yId = (int)abs(floor((V(i, 1) - minV(1)) / boxDist(1)));
 		zId = (int)abs(floor((V(i, 2) - minV(2)) / boxDist(2)));
 		if (xId >(n - 1)) xId = n - 1;
-		if (yId > (n - 1)) yId = n - 1;
+		if (yId >(n - 1)) yId = n - 1;
 		if (zId > (n - 1)) zId = n - 1;
 		v4[xId][yId][zId].push_back(i);
 	}
@@ -64,7 +64,7 @@ void constructVoxelSample(igl::opengl::glfw::Viewer &viewer, const Eigen::Matrix
 				// Only cares for non-empty boxes
 				if (v4[i][j][k].size() > 0) {
 					Eigen::Vector3d boxMin(minV(0) + i*boxDist(0), minV(1) + j*boxDist(1), minV(2) + k*boxDist(2));
-					
+
 					double	lambda = 3.0;
 					double	minVal = numeric_limits<double>::infinity();
 					int		minDistId;
@@ -105,7 +105,7 @@ void constructPoissonDiskSample(const Eigen::MatrixXd &V, const int &numSamples,
 	set<int>		locSample;
 	const int		SamplePerBox = 10;
 	//double			radius = 0.50 * 1.0 / 3.0 * (boxDist(0) + boxDist(1) + boxDist(2));
-	double			radius = sqrt((double)V.rows() / (3.0*(double)numSamples)) * avgEdgeLength; 
+	double			radius = sqrt((double)V.rows() / (3.0*(double)numSamples)) * avgEdgeLength;
 
 	/* Container for boxes */
 	priority_queue<BoxStruct, std::vector<BoxStruct>, std::greater<BoxStruct>>	UnvisitedBoxQueue;
@@ -119,9 +119,9 @@ void constructPoissonDiskSample(const Eigen::MatrixXd &V, const int &numSamples,
 
 	/* Instatiating the tensor with empty elements */
 	v2.reserve(n);	v3.reserve(n);	v4.reserve(n);
-	for (int i = 0; i < n; i++) {v2.push_back(v1);}
-	for (int i = 0; i < n; i++) {v3.push_back(v2);}
-	for (int i = 0; i < n; i++) {v4.push_back(v3);}
+	for (int i = 0; i < n; i++) { v2.push_back(v1); }
+	for (int i = 0; i < n; i++) { v3.push_back(v2); }
+	for (int i = 0; i < n; i++) { v4.push_back(v3); }
 
 	/* Put each vertex to its corresponding box */
 	for (int vId = 0; vId < V.rows(); vId++) {
@@ -130,17 +130,20 @@ void constructPoissonDiskSample(const Eigen::MatrixXd &V, const int &numSamples,
 		yId = (int)abs(floor((V(vId, 1) - minV(1)) / boxDist(1)));
 		zId = (int)abs(floor((V(vId, 2) - minV(2)) / boxDist(2)));
 		if (xId >(n - 1)) xId = n - 1;
-		if (yId > (n - 1)) yId = n - 1;
-		if (zId > (n - 1)) zId = n - 1;
+		if (yId >(n - 1)) yId = n - 1;
+		if (zId >(n - 1)) zId = n - 1;
 
 		v4[xId][yId][zId].push_back(vId);
 	}
-
 
 	// Randomizer for large number (LONG)
 	std::random_device					rd;
 	std::default_random_engine			generator(rd());
 	int									trimCounter = 0;
+
+	/* FOR TESTING ONLY*/
+	int poolCounter = 0;
+	/* END OF TESTING */
 
 	// Populating Boxes with 10 random vertices
 	for (int iIdx = 0; iIdx < n; iIdx++) {
@@ -179,10 +182,13 @@ void constructPoissonDiskSample(const Eigen::MatrixXd &V, const int &numSamples,
 						trimCounter++;
 					} // End of vertex(-ices) deletion
 				}
+				/* FOR TESTING ONLY*/
+				poolCounter += v4[iIdx][jIdx][kIdx].size();
+				/* END OF TESTING */
 			}
 		}
 	} // End of Populating the boxes with samples POOL
-
+	
 	/* Getting samples from POOL */
 	while (VisitedEmptyBoxList.size()<n*n*n) {
 		/* Randomly select a certain box */
@@ -250,14 +256,9 @@ void constructPoissonDiskSample(const Eigen::MatrixXd &V, const int &numSamples,
 	int sId = 0;
 	for (int samp : locSample) {
 		Sample(sId++) = samp;
-	}	
+	}
 
-	//for (int i = 0; i < Sample.size(); i++)
-	//{
-	//	viewer.data.add_points(V.row(Sample(i)), Eigen::RowVector3d(1.0, 0.1, 0.0));
-	//}
-
-	// printf("It now has %d samples\n", Sample.size());
+	printf("Sample: %d from %d pool (%.1f percent deletion).\n", Sample.size(), poolCounter, 100.0*(double)(poolCounter - Sample.size()) / (double)poolCounter);
 }
 
 void ComputeDijkstra(const Eigen::MatrixXd &V, const int Si, const vector<set<int>> &AdM, Eigen::VectorXd &D)
@@ -312,7 +313,7 @@ void constructFarthestPointSample(const Eigen::MatrixXd &V, const std::vector<st
 	srand(time(NULL));
 	Samples(0) = rand() % V.rows();
 	Si = Samples.head(1);
-	
+
 	ComputeDijkstra(V, Samples(0), AdM, D);
 	Eigen::VectorXi::Index maxIndex1;
 	D.maxCoeff(&maxIndex1);
