@@ -18,6 +18,7 @@
 #include "FastSpectrum.h"
 #include "App_MeshFilter.h"
 #include "App_VariableOperator.h"
+#include "App_DiffusionDistance.h"
 
 int					basisToShow		= 0;
 int					eigToShow		= 1;
@@ -27,7 +28,9 @@ static int			numOfSample		= 1000;
 static int			sampleType		= Sample_Poisson_Disk; 
 static int			dataToShow		= 0;
 static int			filterType		= Filter_LowPass;
+static int			diffDistNumEigs;
 static float		varOpT			= 0.25f;
+static vector<double> diffDistT;
 
 static VariableOperator varOperator;
 
@@ -378,6 +381,43 @@ void showMenu(igl::opengl::glfw::Viewer &viewer, igl::opengl::glfw::imgui::ImGui
 				}
 				std::cout << "Launching Variable-Operator" << std::endl;
 			}
+		}
+
+
+		// WINDOW FOR DIFFUSION DISTANCE
+		if (boolDiffDist) {
+			ImGui::SetNextWindowPos(ImVec2((5.0f + menuWindowLeft + menuWindowWidth + 5.0f) * menu.menu_scaling(), 5.0f), ImGuiSetCond_FirstUseEver);
+			ImGui::SetNextWindowSize(ImVec2(menuWindowWidth, 200), ImGuiSetCond_FirstUseEver);
+			ImGui::Begin("Diffusion Distance", nullptr, ImGuiWindowFlags_NoSavedSettings);
+
+			float w2 = ImGui::GetContentRegionAvailWidth();
+			float p2 = ImGui::GetStyle().FramePadding.x;
+
+			vector<vector<Eigen::VectorXd>> DiffusionTensor;
+			Eigen::VectorXd diffVector;
+
+			ImGui::SliderInt("Use %d eigenpairs", &diffDistNumEigs, 1, redEigVals.size(), "");
+			static char tValue[6] = "0.1"; ImGui::InputText("", tValue, 6);
+			diffDistT.push_back(atof(tValue));
+
+			Eigen::MatrixXd appEigVecs; fastSpectrum.getApproxEigVects(appEigVecs);
+			Eigen::VectorXd appEigVals; fastSpectrum.getReducedEigVals(appEigVals);
+
+
+			if (ImGui::Button("Compute Diffusion Distance", ImVec2(w2, 30))) {
+				constructDiffusionTensor(appEigVecs, redEigVals, V, diffDistNumEigs, diffDistT, DiffusionTensor);
+			}
+
+			ImGui::Spacing(); ImGui::Spacing();
+
+			if (ImGui::Button("Visualize Diffusion Distance")) {
+				visualizeDiffusionDist(V, DiffusionTensor, 0, rand() % V.rows(), diffVector);
+				Z = diffVector;
+				igl::jet(Z, true, vColor);
+				viewer.data().set_colors(vColor);
+			}
+
+			ImGui::End();
 		}
 
 		// WINDOW FOR MESH FILTERING
