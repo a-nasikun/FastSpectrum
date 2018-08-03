@@ -4,7 +4,7 @@
 // INPUT: Vertex matrix & Mass Matrix M & Basis Matrix U & Reduced Eigenvectors & paramters of filter
 // OUTPUT: New Vertex matrix
 void constructMeshFilter(const Eigen::MatrixXd &V, const Eigen::SparseMatrix<double> &M, const Eigen::SparseMatrix<double> &U,
-	const Eigen::MatrixXd &LDEigVec, FilterType filterType, const int &k, const int &m, Eigen::MatrixXd &Vout)
+	const Eigen::MatrixXd &LDEigVec, FilterType filterType, const int &k, const int &m, const int &n, Eigen::MatrixXd &Vout)
 {
 	Vout.resize(V.rows(), V.cols());
 
@@ -25,15 +25,14 @@ void constructMeshFilter(const Eigen::MatrixXd &V, const Eigen::SparseMatrix<dou
 		createPolynomialFilter(k, m, filter);
 		break;
 	case Filter_QuadMiddle:
-		createQuadMiddleFilter(k, m, filter);
+		createQuadMiddleFilter(k, m, n, filter);
 		break;
 	case Filter_QuadMiddleInverse:
-		createQuadMiddleFilterInverse(k, m, filter);
+		createQuadMiddleFilterInverse(k, m, n, filter);
 		break;
 	default:
 		break;
 	}
-
 	
 	if (filterType == Filter_Linear || filterType == Filter_LowPass) {
 		projectSpace(V, U, M, LDEigVec, filter, Vfilter);
@@ -107,8 +106,8 @@ void createLowPassFilter(const int &k, const int &m, Eigen::VectorXd &filterCoef
 // Linear Filter (1 until a certain k, then increase linearly to 2 for m)
 void createLinearFilter(const int &k, const int &m, Eigen::VectorXd &filterCoef)
 {
-	double scale = 1.0;
-	filterCoef.resize(m);
+	const double scale = 1.0;			// Max height = 1.0 - scale*1.0.
+	filterCoef.resize(m);				//     be careful not to put too large value of scale, it can blow up
 	for (int i = 0; i < k; i++) {
 		filterCoef(i) = 1.0;
 	}
@@ -121,29 +120,30 @@ void createLinearFilter(const int &k, const int &m, Eigen::VectorXd &filterCoef)
 // Polynomial Filter (1 until a certain k, then polynom function from k to m)
 void createPolynomialFilter(const int &k, const int &m, Eigen::VectorXd &filterCoef)
 {
+	const double scale = 1.5;			// Max height = 1.0 + scale*1.0.
 	filterCoef.resize(m);
 	for (int i = 0; i < k; i++) {
 		filterCoef(i) = 1.0;
 	}
 
 	for (int i = k; i < m; i++) {
-		filterCoef(i) = 2.0 + 1.0 / (double)((m - k)*(m - k)) * (i - k)*(i - k);
+		filterCoef(i) = scale + 1.0 / (double)((m - k)*(m - k)) * (i - k)*(i - k);
 	}
 
 }
 
 // Polynomial Filter (1 until a certain k, then polynom function from k to m)
-void createQuadMiddleFilter(const int &k, const int &m, Eigen::VectorXd &filterCoef)
+void createQuadMiddleFilter(const int &k, const int &m, const int &n, Eigen::VectorXd &filterCoef)
 {
 	int p1, p2, p3;
 	int q1, q2, q3;
 
 	p1 = k;
-	p3 = k + 500;
-	q1 = m - 500;
+	p3 = k + (int)(0.2*(m-k));
+	q1 = m - (int)(0.2*(m-k));
 	q3 = m;
 
-	filterCoef.resize(m);
+	filterCoef.resize(n);
 
 	// Ones part
 	for (int i = 0; i < k; i++) {
@@ -169,20 +169,25 @@ void createQuadMiddleFilter(const int &k, const int &m, Eigen::VectorXd &filterC
 	for (int i = q1; i < q3; i++) {
 		filterCoef(i) = 1.0 + pVal - aVal*(double)((i - q1)*(i - q1)*(i - q1)) - bVal*(double)((i - q1)*(i - q1));
 	}
+
+	// Constant, at the edge
+	for (int i = q3; i < n; i++) {
+		filterCoef(i) = 1.0;
+	}
 }
 
 // Polynomial Filter (1 until a certain k, then polynom function from k to m)
-void createQuadMiddleFilterInverse(const int &k, const int &m, Eigen::VectorXd &filterCoef)
+void createQuadMiddleFilterInverse(const int &k, const int &m, const int &n, Eigen::VectorXd &filterCoef)
 {
 	int p1, p2, p3;
 	int q1, q2, q3;
 
-	p1 = 1000;
-	p3 = 1000 + 500;
-	q1 = 4000 - 500;
-	q3 = 4000;
+	p1 = k;
+	p3 = k + (int)(0.2*(m-k));
+	q1 = m - (int)(0.2*(m-k));
+	q3 = m;
 
-	filterCoef.resize(5000);
+	filterCoef.resize(n);
 
 	// Ones part
 	for (int i = 0; i < p1; i++) {
@@ -204,17 +209,18 @@ void createQuadMiddleFilterInverse(const int &k, const int &m, Eigen::VectorXd &
 		filterCoef(i) = 0.0;
 	}
 
-	pVal = 2.0;
+	pVal = 0.5;
 	qVal = 0.0;
 	aVal = (-2.0*pVal + qVal*(double)p3) / ((double)(p3*p3*p3));
 	bVal = (pVal - 1.0 / 3.0*qVal*(double)p3) / (1.0 / 3.0 * (double)(p3*p3));
 
+	// Increase
 	for (int i = q1; i < q3; i++) {
 		filterCoef(i) = 0.0 + aVal*(double)((i - q1)*(i - q1)*(i - q1)) + bVal*(double)((i - q1)*(i - q1));
 	}
 
 	// Ones part
-	for (int i = q3; i < 5000; i++) {
-		filterCoef(i) = 2.0;
+	for (int i = q3; i < n; i++) {
+		filterCoef(i) = pVal;
 	}
 }

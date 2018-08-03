@@ -17,7 +17,7 @@ enum FilterType {
 // INPUT: Vertex matrix & Mass Matrix M & Basis Matrix U & Reduced Eigenvectors & paramters of filter
 // OUTPUT: New Vertex matrix
 void constructMeshFilter(const Eigen::MatrixXd &V, const Eigen::SparseMatrix<double> &M, const Eigen::SparseMatrix<double> &U,	
-	const Eigen::MatrixXd &LDEigVec, FilterType filterType, const int &k, const int &m, Eigen::MatrixXd &Vout);
+	const Eigen::MatrixXd &LDEigVec, FilterType filterType, const int &k, const int &m, const int &n, Eigen::MatrixXd &Vout);
 
 /* Obtain projection of every columns of V (x,y,z) */
 void projectSpace(const Eigen::MatrixXd &Vin, const Eigen::SparseMatrix<double> &U, const Eigen::SparseMatrix<double> &M,
@@ -37,10 +37,10 @@ void createLinearFilter(const int &k, const int &m, Eigen::VectorXd &filterCoef)
 void createPolynomialFilter(const int &k, const int &m, Eigen::VectorXd &filterCoef);
 
 // Polynomial Filter (1 until a certain k, then polynom function from k to m)
-void createQuadMiddleFilter(const int &k, const int &m, Eigen::VectorXd &filterCoef);
+void createQuadMiddleFilter(const int &k, const int &m, const int &n, Eigen::VectorXd &filterCoef);
 
 // Polynomial Filter (1 until a certain k, then polynom function from k to m)
-void createQuadMiddleFilterInverse(const int &k, const int &m, Eigen::VectorXd &filterCoef);
+void createQuadMiddleFilterInverse(const int &k, const int &m, const int &n, Eigen::VectorXd &filterCoef);
 
 #endif // !APP_MESH_FILTER_H
 

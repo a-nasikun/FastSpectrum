@@ -34,12 +34,12 @@ int main(int argc, char *argv[])
 	fastSpectrum.getF(F);
 
 	/* MESH FILTER */
-	Eigen::MatrixXd Vnew;
-	Eigen::SparseMatrix<double> M;
-	fastSpectrum.getMassMatrix(M);
-	constructMeshFilter(V, M, Basis, redEigVects, Filter_LowPass, 10, 10, Vnew);
-	V = Vnew;
-	printf("Mesh filter with Low Pass filter produced %d-by-%d vertices\n", V.rows(), V.cols());
+	//Eigen::MatrixXd Vnew;
+	//Eigen::SparseMatrix<double> M;
+	//fastSpectrum.getMassMatrix(M);
+	//constructMeshFilter(V, M, Basis, redEigVects, Filter_LowPass, 10, 10, Vnew);
+	//V = Vnew;
+	//printf("Mesh filter with Low Pass filter produced %d-by-%d vertices\n", V.rows(), V.cols());
 
 	/* DIFFUSION DISTANCE */
 	//vector<vector<Eigen::VectorXd>> DiffTensor;

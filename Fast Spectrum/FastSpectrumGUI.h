@@ -403,8 +403,13 @@ void showMenu(igl::opengl::glfw::Viewer &viewer, igl::opengl::glfw::imgui::ImGui
 				fastSpectrum.getMassMatrix(MassM);
 				fastSpectrum.getFunctionBasis(BasisM);
 				fastSpectrum.getReducedEigVects(redEigVects);
-				constructMeshFilter(Vold, MassM, BasisM, redEigVects, (FilterType)filterType, 50, 100, Vnew);
+				if (!(Vold.rows()>0) || Vold.rows() != MassM.rows() || Vold.rows() != BasisM.rows() || redEigVects.cols() != BasisM.cols()) {
+					cout << "Error! Please compute the eigenvectors of current model before doing Mesh Filtering." << endl;
+					return;
+				}
+				constructMeshFilter(Vold, MassM, BasisM, redEigVects, (FilterType)filterType, (int) (0.4*redEigVects.cols()), (int)(0.8*redEigVects.cols()), redEigVects.cols(), Vnew);
 				viewer.data().set_mesh(Vnew, F);
+				viewer.data().compute_normals();
 			}
 
 			ImGui::End();
