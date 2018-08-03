@@ -4,6 +4,7 @@
 
 
 // Constructor: String mesh name + No predefined sample type + No Basis call + approx eigenbasis
+// INPUT: String of mesh-location & number of samples/subpsace, OUTPUT: approximated lifted eigenvectors & eigenvalues)
 void FastSpectrum::computeEigenPairs(const string &meshFile, const int &numOfSamples, Eigen::MatrixXd &approxEigVects, Eigen::VectorXd &approxEigVals)
 {
 	computeEigenPairs(meshFile, numOfSamples, Sample_Poisson_Disk, Basis, reducedEigVects, reducedEigVals);
@@ -12,12 +13,14 @@ void FastSpectrum::computeEigenPairs(const string &meshFile, const int &numOfSam
 }
 
 // Constructor: String mesh name + No predefined sample type + Basis call + reduced eigenbasis
+// INPUT: String of mesh-location & number of samples/subpsace, OUTPUT: Basis & reduced eigenvectors & eigenvalues )
 void FastSpectrum::computeEigenPairs(const string &meshFile, const int &numOfSamples, Eigen::SparseMatrix<double> &Basis, Eigen::MatrixXd &reducedEigVects, Eigen::VectorXd &reducedEigVals)
 {
 	computeEigenPairs(meshFile, numOfSamples, Sample_Poisson_Disk, Basis, reducedEigVects, reducedEigVals);
 }
 
 // Constructor: String mesh name + With predefined sample type + No Basis call + reduced eigenbasis
+// INPUT: String of mesh-location & number of samples/subpsace & type of sampling, OUTPUT: approximated lifted eigenvectors & eigenvalues)
 void FastSpectrum::computeEigenPairs(const string &meshFile, const int &numOfSamples, SamplingType sampleType, Eigen::MatrixXd &approxEigVects, Eigen::VectorXd &approxEigVals)
 {	
 	computeEigenPairs(meshFile, numOfSamples, sampleType, Basis, reducedEigVects, reducedEigVals);
@@ -27,6 +30,7 @@ void FastSpectrum::computeEigenPairs(const string &meshFile, const int &numOfSam
 
 /* Sub-main function (the one that called the most important version of this family of overloaded functions */
 // Constructor: String mesh name + With predefined sample type + with Basis call + reduced eigenbasis
+// INPUT: String of mesh-location & number of samples/subpsace & type of sampling, OUTPUT: Basis & reduced eigenvectors & eigenvalues)
 void FastSpectrum::computeEigenPairs(const string &meshFile, const int &numOfSamples, SamplingType sampleType, Eigen::SparseMatrix<double> &Basis, Eigen::MatrixXd &reducedEigVects, Eigen::VectorXd &reducedEigVals)
 {
 	readMesh(meshFile, V, F);
@@ -35,6 +39,7 @@ void FastSpectrum::computeEigenPairs(const string &meshFile, const int &numOfSam
 }
 
 // Constructor: Vertices & Faces + No predefined sample type + No Basis call + reduced eigenbasis
+// INPUT: V and F matrices & number of samples/subpsace, OUTPUT: approximated lifted eigenvectors & eigenvalues)
 void FastSpectrum::computeEigenPairs(Eigen::MatrixXd &V, Eigen::MatrixXi &F, const int &numOfSamples, Eigen::MatrixXd &approxEigVects, Eigen::VectorXd &approxEigVals)
 {
 	computeEigenPairs(V, F, numOfSamples, Sample_Poisson_Disk, Basis, reducedEigVects, reducedEigVals);
@@ -43,12 +48,14 @@ void FastSpectrum::computeEigenPairs(Eigen::MatrixXd &V, Eigen::MatrixXi &F, con
 }
 
 // Constructor: Vertices & Faces + No predefined sample type + Basis call + reduced eigenbasis
+// INPUT: V and F matrices & number of samples/subpsace, OUTPUT: OUTPUT: Basis & reduced eigenvectors & eigenvalues )
 void FastSpectrum::computeEigenPairs(Eigen::MatrixXd &V, Eigen::MatrixXi &F, const int &numOfSamples, Eigen::SparseMatrix<double> &Basis, Eigen::MatrixXd &reducedEigVects, Eigen::VectorXd &reducedEigVals)
 {
 	computeEigenPairs(V, F, numOfSamples, Sample_Poisson_Disk, Basis, reducedEigVects, reducedEigVals);
 }
  
 // Constructor: Vertices & Faces + With predefined sample type + No Basis call + reduced eigenbasis
+// INPUT: V and F matrices & number of samples/subpsace & type of sampling, OUTPUT: approximated lifted eigenvectors & eigenvalues)
 void FastSpectrum::computeEigenPairs(Eigen::MatrixXd &V, Eigen::MatrixXi &F, const int &numOfSamples, SamplingType sampleType, Eigen::MatrixXd &approxEigVects, Eigen::VectorXd &approxEigVals)
 {
 	computeEigenPairs(V, F, numOfSamples, sampleType, Basis, reducedEigVects, reducedEigVals);
@@ -58,6 +65,7 @@ void FastSpectrum::computeEigenPairs(Eigen::MatrixXd &V, Eigen::MatrixXi &F, con
 
 /* Most important version of the overloaded family of this function calls */
 // Constructor: Vertices & Faces + With predefined sample type + with Basis call + reduced eigenbasis
+// INPUT: V and F matrices & number of samples / subpsace & type of sampling, OUTPUT : Basis & reduced eigenvectors & eigenvalues)
 void FastSpectrum::computeEigenPairs(Eigen::MatrixXd &V, Eigen::MatrixXi &F, const int &numOfSamples, SamplingType sampleType, Eigen::SparseMatrix<double> &Basis, Eigen::MatrixXd &reducedEigVects, Eigen::VectorXd &reducedEigVals)
 {
 	// [1.2] Constructing Laplacian Matrices (Stiffness and Mass-Matrix)
