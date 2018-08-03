@@ -109,7 +109,6 @@ void constructPoissonDiskSample(const Eigen::MatrixXd &V, const int &numSamples,
 	for (int i = 0; i < 3; i++) {
 		boxDist(i) = minRange / (double) n;
 		nn(i) = (int)ceil(range(i) / boxDist(i));
-		printf("nn(%d)=%d || boxDis(%d)=%.3f. \n", i, nn(i), i, boxDist(i));
 	}
 
 	//boxDist = range / (double)n;
@@ -134,9 +133,7 @@ void constructPoissonDiskSample(const Eigen::MatrixXd &V, const int &numSamples,
 	for (int i = 0; i < nn(2); i++) { v2.push_back(v1); }
 	for (int i = 0; i < nn(1); i++) { v3.push_back(v2); }
 	for (int i = 0; i < nn(0); i++) { v4.push_back(v3); }
-	
-	printf("v2 size=%d, v3=%d, v4=%d \n", v2.size(), v3.size(), v4.size());
-	
+		
 	/* Put each vertex to its corresponding box */
 	for (int vId = 0; vId < V.rows(); vId++) {
 		int xId, yId, zId;
@@ -168,13 +165,12 @@ void constructPoissonDiskSample(const Eigen::MatrixXd &V, const int &numSamples,
 				/* IF there are more samples on a box then required, select randomly 10 of them; */
 				int boxSize = v4[iIdx][jIdx][kIdx].size();
 				if (boxSize == 0) {
-					//VisitedEmptyBoxList.push_back(iIdx*nn(0)*nn(0) + jIdx*nn(1) + kIdx);
+					// ID(a,b,c) = a*(y*z) + b*(z) + c
 					VisitedEmptyBoxList.push_back(iIdx*nn(2)*nn(1) + jIdx*nn(2) + kIdx);
 				}
 				else
 				{	// Work on NON-EMPTY boxes only
 					double randDist = (double)(rand() % 100) / (double)10;
-					//BoxStruct curBox{ iIdx*nn(0)*nn(0) + jIdx*nn(1) + kIdx, randDist };
 					BoxStruct curBox{ iIdx*nn(2)*nn(1) + jIdx*nn(2) + kIdx, randDist };
 					UnvisitedBoxQueue.push(curBox);
 
@@ -205,12 +201,10 @@ void constructPoissonDiskSample(const Eigen::MatrixXd &V, const int &numSamples,
 		}
 	} // End of Populating the boxes with samples POOL
 	
-	printf("Has set up %d samplepool. \n", poolCounter);
-
+	//printf("Has set up %d samplepool. \n", poolCounter);
 
 	/* Getting samples from POOL */
 	while (VisitedEmptyBoxList.size()<nn(0)*nn(1)*nn(2)) {
-	//while(!UnvisitedBoxQueue.empty()){
 		/* Randomly select a certain box */
 		BoxStruct box1 = UnvisitedBoxQueue.top();
 		UnvisitedBoxQueue.pop();
@@ -220,10 +214,7 @@ void constructPoissonDiskSample(const Eigen::MatrixXd &V, const int &numSamples,
 		b_xId = round(box1.id / (nn(1)*nn(2)));
 		b_yId = round((box1.id - b_xId*nn(1)*nn(2)) / nn(2));
 		b_zId = box1.id % nn(2);
-		//if (box1.id % 100 == 70) 
-			//printf("%d => (%d, %d, %d): SIZE=%d.\n", box1.id, b_xId, b_yId, b_zId, VisitedEmptyBoxList.size());
-		if (v4[b_xId][b_yId][b_zId].size() < 1) continue;
-		
+		if (v4[b_xId][b_yId][b_zId].size() < 1) continue;		
 		
 		/* Picking a random sample from a box */
 		srand(time(NULL));
@@ -282,7 +273,8 @@ void constructPoissonDiskSample(const Eigen::MatrixXd &V, const int &numSamples,
 		Sample(sId++) = samp;
 	}
 
-	printf("Sample: %d from %d pool (%.1f percent deletion) (boxes=%d).\n", Sample.size(), poolCounter, 100.0*(double)(poolCounter - Sample.size()) / (double)poolCounter, nn(0)*nn(1)*nn(2));
+	//printf("	Sample: %d from %d pool (%.1f percent deletion) (boxes=%d).\n", Sample.size(), poolCounter, 
+	//			100.0*(double)(poolCounter - Sample.size()) / (double)poolCounter, nn(0)*nn(1)*nn(2));
 }
 
 void ComputeDijkstra(const Eigen::MatrixXd &V, const int Si, const vector<set<int>> &AdM, Eigen::VectorXd &D)
