@@ -110,7 +110,32 @@ void FastSpectrum::constructLaplacianMatrix(){
 
 /* [Construct samples for the subspace] */
 void FastSpectrum::constructSample(){
-	int nBox = 13;
+	int nBox;
+	if (sampleSize < 1 || sampleSize>V.rows()) {
+		cout << "Error! Sample cannot be 0 or larger than the number of vertices." << endl;
+		return;
+	}else if (sampleSize <= 300) {
+		nBox = 8;
+	}
+	else if (sampleSize > 300 && sampleSize <= 500) {
+		nBox = 10;
+	}
+	else if (sampleSize > 500 && sampleSize <= 2000) {
+		nBox = 13;
+	}
+	else if (sampleSize > 2000 && sampleSize <= 3000) {
+		nBox = 15;
+	}
+	else if (sampleSize > 3000 && sampleSize <= 6000) {
+		nBox = 18;
+	}
+	else if (sampleSize > 6000 && sampleSize <= 10000) {
+		nBox = 23;
+	}
+	else {
+		cout << "Warning! Are you sure to have this huge amount of sampling?." << endl;
+		cout << "Our approach won't have much benefit with this large sampling, though." << endl;
+	}
 
 	/* Different type of sampling */
 	switch (sampleType)

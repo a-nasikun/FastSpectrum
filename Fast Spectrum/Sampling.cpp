@@ -117,7 +117,7 @@ void constructPoissonDiskSample(const Eigen::MatrixXd &V, const int &numSamples,
 	set<int>		locSample;
 	const int		SamplePerBox = 10;
 	//double			radius = 0.50 * 1.0 / 3.0 * (boxDist(0) + boxDist(1) + boxDist(2));
-	double			radius = sqrt((double)V.rows() / (3.0*(double)numSamples)) * avgEdgeLength;
+	double			radius = sqrt((double)V.rows() / (2.5*(double)numSamples)) * avgEdgeLength;
 
 	/* Container for boxes */
 	priority_queue<BoxStruct, std::vector<BoxStruct>, std::greater<BoxStruct>>	UnvisitedBoxQueue;
@@ -168,12 +168,14 @@ void constructPoissonDiskSample(const Eigen::MatrixXd &V, const int &numSamples,
 				/* IF there are more samples on a box then required, select randomly 10 of them; */
 				int boxSize = v4[iIdx][jIdx][kIdx].size();
 				if (boxSize == 0) {
-					VisitedEmptyBoxList.push_back(iIdx*nn(0)*nn(0) + jIdx*nn(1) + kIdx);
+					//VisitedEmptyBoxList.push_back(iIdx*nn(0)*nn(0) + jIdx*nn(1) + kIdx);
+					VisitedEmptyBoxList.push_back(iIdx*nn(2)*nn(1) + jIdx*nn(2) + kIdx);
 				}
 				else
 				{	// Work on NON-EMPTY boxes only
 					double randDist = (double)(rand() % 100) / (double)10;
-					BoxStruct curBox{ iIdx*nn(0)*nn(0) + jIdx*nn(1) + kIdx, randDist };
+					//BoxStruct curBox{ iIdx*nn(0)*nn(0) + jIdx*nn(1) + kIdx, randDist };
+					BoxStruct curBox{ iIdx*nn(2)*nn(1) + jIdx*nn(2) + kIdx, randDist };
 					UnvisitedBoxQueue.push(curBox);
 
 					/* If there are more elements than required, randomly discard the rest */
@@ -203,71 +205,73 @@ void constructPoissonDiskSample(const Eigen::MatrixXd &V, const int &numSamples,
 		}
 	} // End of Populating the boxes with samples POOL
 	
-	cout << "Has set up the samplepool " << endl;
+	printf("Has set up %d samplepool. \n", poolCounter);
 
 
 	/* Getting samples from POOL */
 	while (VisitedEmptyBoxList.size()<nn(0)*nn(1)*nn(2)) {
+	//while(!UnvisitedBoxQueue.empty()){
 		/* Randomly select a certain box */
 		BoxStruct box1 = UnvisitedBoxQueue.top();
 		UnvisitedBoxQueue.pop();
 
 		/* Determining in which box is this point located */
 		int b_xId, b_yId, b_zId;
-		b_xId = roundl(box1.id / (nn(0)*nn(0)));
-		b_yId = roundl((box1.id - b_xId*nn(0)*nn(0)) / nn(1));
+		b_xId = round(box1.id / (nn(1)*nn(2)));
+		b_yId = round((box1.id - b_xId*nn(1)*nn(2)) / nn(2));
 		b_zId = box1.id % nn(2);
 		//if (box1.id % 100 == 70) 
-			printf("%d => (%d, %d, %d)\n", box1.id, b_xId, b_yId, b_zId);
+			//printf("%d => (%d, %d, %d): SIZE=%d.\n", box1.id, b_xId, b_yId, b_zId, VisitedEmptyBoxList.size());
 		if (v4[b_xId][b_yId][b_zId].size() < 1) continue;
-		//
-		//
-		///* Picking a random sample from a box */
-		//srand(time(NULL));
-		//int randV1 = rand() % v4[b_xId][b_yId][b_zId].size();
-		//int boxSample;
-		//int locCounter = 0;
-		//for (list<int>::iterator it = v4[b_xId][b_yId][b_zId].begin(); it != v4[b_xId][b_yId][b_zId].end(); ++it) {
-		//	if (randV1 == locCounter) boxSample = *it;
-		//	locCounter++;
-		//}
-		//locSample.insert(locSample.end(), boxSample);
-		//
-		///* Iterating through neigboring boxes */
-		//for (int i = b_xId - 1; i <= b_xId + 1; i++) {
-		//	if (i < 0 || i >(nn(0) - 1)) continue;
-		//	for (int j = b_yId - 1; j <= b_yId + 1; j++) {
-		//		if (j < 0 || j >(nn(1) - 1)) continue;
-		//		for (int k = b_zId - 1; k <= b_zId + 1; k++) {
-		//			if (k < 0 || k >(nn(2) - 1)) continue;
-		//			if (v4[i][j][k].size() > 0) {
-		//				/* Removing samples closer than a certain radius */
-		//				for (list<int>::iterator it = v4[i][j][k].begin(); it != v4[i][j][k].end(); ++it) {
-		//					double distAB;
-		//					VtoVDist(V.row(boxSample), V.row(*it), distAB);
-		//
-		//					if (distAB <= radius) {
-		//						v4[i][j][k].remove(*it);
-		//					}
-		//				} /* End of Removing samples closer than a certain radius */
-		//
-		//				  /* Put the empty boxes to its list */
-		//				if (v4[i][j][k].size() < 1) {
-		//					VisitedEmptyBoxList.push_back(i*nn(0)*nn(0) + j*nn(1) + k);
-		//				}
-		//				else
-		//				{
-		//					/* If the original box is not empty, put it back to queue with new priority */
-		//					if (i == b_xId && j == b_yId && k == b_zId) {
-		//						double nRandDist = (double)(rand() % 100) / (double)10;
-		//						BoxStruct curBox{ i*nn(0)*nn(0) + j*nn(1) + k, nRandDist };
-		//						UnvisitedBoxQueue.push(curBox);
-		//					}
-		//				}
-		//			}
-		//		} /* End of iteration on each box */
-		//	}
-		//} /* End of Iterating through neigboring boxes */
+		
+		
+		/* Picking a random sample from a box */
+		srand(time(NULL));
+		int randV1 = rand() % v4[b_xId][b_yId][b_zId].size();
+		int boxSample;
+		int locCounter = 0;
+		for (list<int>::iterator it = v4[b_xId][b_yId][b_zId].begin(); it != v4[b_xId][b_yId][b_zId].end(); ++it) {
+			if (randV1 == locCounter) boxSample = *it;
+			locCounter++;
+		}
+		locSample.insert(locSample.end(), boxSample);
+		
+		/* Iterating through neigboring boxes */
+		for (int i = b_xId - 1; i <= b_xId + 1; i++) {
+			if (i < 0 || i >(nn(0) - 1)) continue;
+			for (int j = b_yId - 1; j <= b_yId + 1; j++) {
+				if (j < 0 || j >(nn(1) - 1)) continue;
+				for (int k = b_zId - 1; k <= b_zId + 1; k++) {
+					if (k < 0 || k >(nn(2) - 1)) continue;
+					if (v4[i][j][k].size() > 0) {
+						/* Removing samples closer than a certain radius */
+						for (list<int>::iterator it = v4[i][j][k].begin(); it != v4[i][j][k].end(); ++it) {
+							double distAB;
+							VtoVDist(V.row(boxSample), V.row(*it), distAB);
+		
+							if (distAB <= radius) {
+								v4[i][j][k].remove(*it);
+							}
+						} /* End of Removing samples closer than a certain radius */
+		
+						  /* Put the empty boxes to its list */
+						if (v4[i][j][k].size() < 1) {
+							VisitedEmptyBoxList.push_back(i*nn(1)*nn(2) + j*nn(2) + k);
+						}
+						else
+						{
+							/* If the original box is not empty, put it back to queue with new priority */
+							if (i == b_xId && j == b_yId && k == b_zId) {
+								double nRandDist = (double)(rand() % 100) / (double)10;
+								// ID = a*(y*z) + b*(z) + c.
+								BoxStruct curBox{ i*nn(1)*nn(2) + j*nn(2) + k, nRandDist };
+								UnvisitedBoxQueue.push(curBox);
+							}
+						}
+					}
+				} /* End of iteration on each box */
+			}
+		} /* End of Iterating through neigboring boxes */
 	}
 	/* END of Iterating to get All samples */
 
