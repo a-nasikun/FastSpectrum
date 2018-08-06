@@ -51,13 +51,12 @@ This work was presented at [SGP 2018](https://sgp2018.sciencesconf.org/resource/
 If you use our application in your work, please kindly cite our work.
 ```
 @article{nasikun2018fastspectrum,
-  title={Fast Approximation of Laplace–Beltrami Eigenproblems},
+  title={Fast Approximation of Laplace-–Beltrami Eigenproblems},
   author={Nasikun, Ahmad and Brandt, Christopher and Hildebrandt, Klaus},
-  journal={Computer Graphics Forum (CGF)},
+  journal={Computer Graphics Forum},
   volume={37},
   number={5},  
-  pages={14},
   year={2018},
-  publisher={Wiley Online Library}
+  publisher={Wiley}
 }
 ```
