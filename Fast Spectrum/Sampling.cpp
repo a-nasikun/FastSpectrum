@@ -185,9 +185,12 @@ void constructPoissonDiskSample(const Eigen::MatrixXd &V, const int &numSamples,
 						} while (vertexToDel.size() <= (boxSize - SamplePerBox));
 
 						int l = 0;
-						for (list<int>::iterator it = v4[iIdx][jIdx][kIdx].begin(); it != v4[iIdx][jIdx][kIdx].end(); ++it) {
+						for (list<int>::iterator it = v4[iIdx][jIdx][kIdx].begin(); it != v4[iIdx][jIdx][kIdx].end(); ) {
 							if (vertexToDel.find(l) != vertexToDel.end()) {
-								v4[iIdx][jIdx][kIdx].remove(*it);
+								it = v4[iIdx][jIdx][kIdx].erase(it);
+							}
+							else {
+								++it;
 							}
 							l++;
 						}
@@ -236,12 +239,15 @@ void constructPoissonDiskSample(const Eigen::MatrixXd &V, const int &numSamples,
 					if (k < 0 || k >(nn(2) - 1)) continue;
 					if (v4[i][j][k].size() > 0) {
 						/* Removing samples closer than a certain radius */
-						for (list<int>::iterator it = v4[i][j][k].begin(); it != v4[i][j][k].end(); ++it) {
+						for (list<int>::iterator it = v4[i][j][k].begin(); it != v4[i][j][k].end(); ) {
 							double distAB;
 							VtoVDist(V.row(boxSample), V.row(*it), distAB);
 		
 							if (distAB <= radius) {
-								v4[i][j][k].remove(*it);
+								it = v4[i][j][k].erase(it);
+							}
+							else {
+								++it;
 							}
 						} /* End of Removing samples closer than a certain radius */
 		
