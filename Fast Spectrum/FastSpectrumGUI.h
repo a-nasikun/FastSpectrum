@@ -14,6 +14,7 @@
 #include <igl/opengl/glfw/ViewerPlugin.h>
 #include <igl/opengl/glfw/imgui/ImGuiMenu.h>
 #include <igl/opengl/glfw/imgui/ImGuiHelpers.h>
+#include <igl/isolines.h>
 
 #include "FastSpectrum.h"
 #include "App_MeshFilter.h"
@@ -28,9 +29,12 @@ static int			numOfSample		= 1000;
 static int			sampleType		= Sample_Poisson_Disk; 
 static int			dataToShow		= 0;
 static int			filterType		= Filter_LowPass;
-static int			diffDistNumEigs;
+static int			diffDistNumEigs=100, numAllEigs;
 static float		varOpT			= 0.25f;
-static vector<double> diffDistT;
+static vector<double> diffDistT(1, 0.1);
+
+static vector<vector<Eigen::VectorXd>> DiffusionTensor;
+static Eigen::VectorXd diffVector;
 
 static VariableOperator varOperator;
 
@@ -56,6 +60,10 @@ void showMenu(igl::opengl::glfw::Viewer &viewer, igl::opengl::glfw::imgui::ImGui
 
 		float w = ImGui::GetContentRegionAvailWidth();
 		float p = ImGui::GetStyle().FramePadding.x;
+
+		// Diffusion Distance
+		//diffDistT.reserve(1);
+		//diffDistT.push_back(0.1);
 
 		// Main Algorithm
 		if (ImGui::CollapsingHeader("Executing Algorithm", ImGuiTreeNodeFlags_DefaultOpen)){
@@ -358,6 +366,10 @@ void showMenu(igl::opengl::glfw::Viewer &viewer, igl::opengl::glfw::imgui::ImGui
 			if (ImGui::Button("Launch \"Diffusion Distance\"", ImVec2((w), 0))) {
 				boolDiffDist = !boolDiffDist;
 				if (boolDiffDist) {
+
+					fastSpectrum.getReducedEigVals(redEigVals);
+					numAllEigs = redEigVals.size();
+
 					boolMeshFilter = false;
 					boolVarOperator = false;
 				}
@@ -384,7 +396,7 @@ void showMenu(igl::opengl::glfw::Viewer &viewer, igl::opengl::glfw::imgui::ImGui
 		}
 
 
-		// WINDOW FOR DIFFUSION DISTANCE
+		// WINDOW FOR DIFFUSION DISTANCE		
 		if (boolDiffDist) {
 			ImGui::SetNextWindowPos(ImVec2((5.0f + menuWindowLeft + menuWindowWidth + 5.0f) * menu.menu_scaling(), 5.0f), ImGuiSetCond_FirstUseEver);
 			ImGui::SetNextWindowSize(ImVec2(menuWindowWidth, 200), ImGuiSetCond_FirstUseEver);
@@ -393,30 +405,63 @@ void showMenu(igl::opengl::glfw::Viewer &viewer, igl::opengl::glfw::imgui::ImGui
 			float w2 = ImGui::GetContentRegionAvailWidth();
 			float p2 = ImGui::GetStyle().FramePadding.x;
 
-			vector<vector<Eigen::VectorXd>> DiffusionTensor;
-			Eigen::VectorXd diffVector;
+			
+			int numEigvects = (int)redEigVals.size();
+			ImGui::SliderInt("Eigenpairs to use", &diffDistNumEigs, 1, numAllEigs /*(int) redEigVals.size()*/, "Use %d eig-pairs");
+			static char tValue[6] = "0.1"; ImGui::InputText("Value of t", tValue, 6);
+			diffDistT.at(0) = atof(tValue);
+			//diffDistT.push_back(atof(tValue));
+			//printf("size of t=%d\n", diffDistT.size());
 
-			ImGui::SliderInt("Use %d eigenpairs", &diffDistNumEigs, 1, redEigVals.size(), "");
-			static char tValue[6] = "0.1"; ImGui::InputText("", tValue, 6);
-			diffDistT.push_back(atof(tValue));
-
-			Eigen::MatrixXd appEigVecs; fastSpectrum.getApproxEigVects(appEigVecs);
-			Eigen::VectorXd appEigVals; fastSpectrum.getReducedEigVals(appEigVals);
+			Eigen::MatrixXd appEigVecs; 
+			Eigen::VectorXd appEigVals; 
 
 
 			if (ImGui::Button("Compute Diffusion Distance", ImVec2(w2, 30))) {
-				constructDiffusionTensor(appEigVecs, redEigVals, V, diffDistNumEigs, diffDistT, DiffusionTensor);
+				fastSpectrum.getApproxEigVects(appEigVecs);
+				cout << "Get the eigenvectors" << endl;
+				fastSpectrum.getReducedEigVals(appEigVals);
+				cout << "Get the eigenvalues" << endl; 
+				constructDiffusionTensor(appEigVecs, appEigVals, V, diffDistNumEigs, diffDistT, DiffusionTensor);
 			}
 
 			ImGui::Spacing(); ImGui::Spacing();
 
-			if (ImGui::Button("Visualize Diffusion Distance")) {
+			if (ImGui::Button("Color Visualization", ImVec2(w2,0))) {
+				if (DiffusionTensor[0].size() < 1) {
+					cout << "Error! Please compute the diffusion tensor first." << endl;
+					return;
+				}
 				visualizeDiffusionDist(V, DiffusionTensor, 0, rand() % V.rows(), diffVector);
+
 				Z = diffVector;
 				igl::jet(Z, true, vColor);
 				viewer.data().set_colors(vColor);
 			}
 
+			if (ImGui::Button("Isolines Visualization", ImVec2(w2, 0))) {
+				if (DiffusionTensor[0].size() < 1) {
+					cout << "Error! Please compute the diffusion tensor first." << endl;
+					return;
+				}
+				int vertexID = (int) (rand() % V.rows());
+				visualizeDiffusionDist(V, DiffusionTensor, 0, vertexID, diffVector);
+				
+				printf("Size of diffvector=%d, V=%dx%d, F=%dx%d\n.", diffVector.size(), V.rows(), V.cols(), F.rows(), F.cols());
+				Eigen::MatrixXd isoV, isoE;
+				Eigen::VectorXd aaa = diffVector;
+
+				viewer.data().clear();
+				viewer.data().set_mesh(V, F);
+				//viewer.data().add_points(V.row(vertexID), Eigen::RowVector3d(0.7, 0.1, 0.1));
+				//igl::isolines(V, F, diffVector, 10, isoV, isoE);
+				//igl::isolines(V, F, aaa, 10, isoV, isoE);
+				printf("Size of isolines=%d\n.", isoE.size());
+
+				//for (int i = 0; i < isoE.rows(); i++) {
+				//	viewer.data().add_edges(isoV.row(isoE.row(i)(0)), isoV.row(isoE.row(i)(1)), Eigen::RowVector3d(0.6, 0.1, 0.1));
+				//}
+			}
 			ImGui::End();
 		}
 
