@@ -26,7 +26,7 @@ int main(int argc, char *argv[])
 	ImGui::CreateContext();
 	ImGui::StyleColorsDark();							// Set style
 
-	meshFile = "../Models/AIM894_Chinese Dragon/894_Chinese Dragon.obj";
+	meshFile = "../FastSpectrum/Models/AIM894_Chinese Dragon/894_Chinese Dragon.obj";
 	//fastSpectrum.computeEigenPairs(meshFile, 1000, Basis, redEigVects, redEigVals);
 	fastSpectrum.computeEigenPairs(meshFile, 1000, Sample_Farthest_Point, Basis, redEigVects, redEigVals);
 

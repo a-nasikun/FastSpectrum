@@ -29,7 +29,7 @@ static int			numOfSample		= 1000;
 static int			sampleType		= Sample_Poisson_Disk; 
 static int			dataToShow		= 0;
 static int			filterType		= Filter_LowPass;
-static int			diffDistNumEigs=100, numAllEigs;
+static int			diffDistNumEigs = 100, numAllEigs;
 static float		varOpT			= 0.25f;
 static vector<double> diffDistT(1, 0.1);
 
@@ -405,9 +405,10 @@ void showMenu(igl::opengl::glfw::Viewer &viewer, igl::opengl::glfw::imgui::ImGui
 			float w2 = ImGui::GetContentRegionAvailWidth();
 			float p2 = ImGui::GetStyle().FramePadding.x;
 
-			
-			int numEigvects = (int)redEigVals.size();
-			ImGui::SliderInt("Eigenpairs to use", &diffDistNumEigs, 1, numAllEigs /*(int) redEigVals.size()*/, "Use %d eig-pairs");
+			fastSpectrum.getReducedEigVals(redEigVals);
+			int numAllEigs = (int)redEigVals.size();
+			ImGui::SliderInt("Eigenpairs to use ##forDiffusinDistance", &diffDistNumEigs, 1, numAllEigs /*(int) redEigVals.size()*/, "Use %d eig-pairs");
+			printf("usage of eigs=%d\n", diffDistNumEigs);
 			static char tValue[6] = "0.1"; ImGui::InputText("Value of t", tValue, 6);
 			diffDistT.at(0) = atof(tValue);
 			//diffDistT.push_back(atof(tValue));
@@ -483,7 +484,17 @@ void showMenu(igl::opengl::glfw::Viewer &viewer, igl::opengl::glfw::imgui::ImGui
 			Eigen::SparseMatrix<double> MassM, BasisM;
 			Eigen::MatrixXd Vnew, Vold;
 
-			if (ImGui::Button("Compute Mesh Filter", ImVec2(w2,30))) {
+			static int lowPassLimit, highPassLimit, numAllEigs;
+			fastSpectrum.getReducedEigVals(redEigVals);
+			numAllEigs = (int) redEigVals.size();
+			//highPassLimit = numAllEigs;
+			//numAllEigs = 1000;
+
+			
+			ImGui::SliderInt("Low-pass limit ##forDiffusionDistance", &lowPassLimit, 1, numAllEigs);
+			ImGui::SliderInt("High-pass limit ##forDiffusionDistance", &highPassLimit, lowPassLimit, numAllEigs);
+
+			if (ImGui::Button("Compute Mesh Filter", ImVec2(3.0f*(w2-p2)/4.0f,30))) {
 				fastSpectrum.getV(Vold);
 				fastSpectrum.getMassMatrix(MassM);
 				fastSpectrum.getFunctionBasis(BasisM);
@@ -492,8 +503,16 @@ void showMenu(igl::opengl::glfw::Viewer &viewer, igl::opengl::glfw::imgui::ImGui
 					cout << "Error! Please compute the eigenvectors of current model before doing Mesh Filtering." << endl;
 					return;
 				}
-				constructMeshFilter(Vold, MassM, BasisM, redEigVects, (FilterType)filterType, (int) (0.4*redEigVects.cols()), (int)(0.8*redEigVects.cols()), redEigVects.cols(), Vnew);
+				//constructMeshFilter(Vold, MassM, BasisM, redEigVects, (FilterType)filterType, (int) (0.4*redEigVects.cols()), (int)(0.8*redEigVects.cols()), redEigVects.cols(), Vnew);
+				constructMeshFilter(Vold, MassM, BasisM, redEigVects, (FilterType)filterType, lowPassLimit, highPassLimit, redEigVects.cols(), Vnew);
 				viewer.data().set_mesh(Vnew, F);
+				viewer.data().compute_normals();
+			}  
+			ImGui::SameLine();
+			if (ImGui::Button("Reset", ImVec2(1.0f*(w2 - p2) / 4.0f, 30))) {
+				fastSpectrum.getV(Vold);
+				printf("Vold=%dx%d; F=%dx%d\n", Vold.rows(), Vold.cols(), F.rows(), F.cols());
+				viewer.data().set_mesh(Vold, F);
 				viewer.data().compute_normals();
 			}
 

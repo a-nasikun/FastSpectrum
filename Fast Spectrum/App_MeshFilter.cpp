@@ -1,4 +1,7 @@
 #include "App_MeshFilter.h"
+#include <iostream>
+
+using namespace std;
 
 // Construct a Mesh Filter from Reduced-Eigenvectors
 // INPUT: Vertex matrix & Mass Matrix M & Basis Matrix U & Reduced Eigenvectors & paramters of filter
@@ -44,6 +47,7 @@ void constructMeshFilter(const Eigen::MatrixXd &V, const Eigen::SparseMatrix<dou
 		Vresidu = Vfilter - Vref;
 		Vout = Vfilter + (double)filter(filter.size()-1) * Vresidu;
 	}
+	//cout << "Filter \n" << filter << endl << endl;
 	printf("Filter last =%.5f\n", filter(filter.size() - 1));
 }
 
@@ -98,7 +102,7 @@ void createLowPassFilter(const int &k, const int &m, Eigen::VectorXd &filterCoef
 	}
 
 	for (int i = k; i < m; i++) {
-		filterCoef(i) = scale * (1.0 - (1.0 / (double)((m-1 - k)*(m-1 - k))) * (double)((i - k)*(i - k)));
+		filterCoef(i) = scale * (1.0 - (1.0 / (double)((m - k)*(m - k))) * (double)((i - k)*(i - k)));
 	}
 
 }
@@ -113,14 +117,14 @@ void createLinearFilter(const int &k, const int &m, Eigen::VectorXd &filterCoef)
 	}
 
 	for (int i = k; i < m; i++) {
-		filterCoef(i) = 1.0 + scale*(i - (double)k) / (double)(m - k);
+		filterCoef(i) = scale - scale*(i - (double)k) / (double)(m - k);
 	}
 }
 
 // Polynomial Filter (1 until a certain k, then polynom function from k to m)
 void createPolynomialFilter(const int &k, const int &m, Eigen::VectorXd &filterCoef)
 {
-	const double scale = 1.5;			// Max height = 1.0 + scale*1.0.
+	const double scale = 1.0;			// Max height = 1.0 + scale*1.0.
 	filterCoef.resize(m);
 	for (int i = 0; i < k; i++) {
 		filterCoef(i) = 1.0;
@@ -132,7 +136,7 @@ void createPolynomialFilter(const int &k, const int &m, Eigen::VectorXd &filterC
 
 }
 
-// Polynomial Filter (1 until a certain k, then polynom function from k to m)
+// 1:k => 1.0; k:(k+a) => increase
 void createQuadMiddleFilter(const int &k, const int &m, const int &n, Eigen::VectorXd &filterCoef)
 {
 	int p1, p2, p3;
@@ -142,6 +146,7 @@ void createQuadMiddleFilter(const int &k, const int &m, const int &n, Eigen::Vec
 	p3 = k + (int)(0.2*(m-k));
 	q1 = m - (int)(0.2*(m-k));
 	q3 = m;
+	//printf("p1=%d, p3=%d, q1=%d, q2=%d\n", p1, p3, q1, q3);
 
 	filterCoef.resize(n);
 
@@ -151,23 +156,26 @@ void createQuadMiddleFilter(const int &k, const int &m, const int &n, Eigen::Vec
 	}
 
 	// Increase
-	double pVal = 1.0;
+	double pVal = 2.0;
 	double qVal = 0.0;
-	double aVal = (-2.0*pVal + qVal*(double)p3) / ((double)(p3*p3*p3));
-	double bVal = (pVal - 1.0 / 3.0*qVal*(double)p3) / (1.0 / 3.0 * (double)(p3*p3));
+	double aVal = (-2.0*pVal + qVal*(double)(p3-p1)) / ((double)((p3 - p1)*(p3 - p1)*(p3 - p1)));
+	double bVal = (pVal - 1.0/3.0*qVal*(double)(p3 - p1)) / (1.0/3.0 * (double)((p3 - p1)*(p3 - p1)));
+
+	//printf("a=%.32f, b=%.32f\n", aVal, bVal);
 
 	for (int i = p1; i < p3; i++) {
-		filterCoef(i) = 1.0 + aVal*(double)((i - p1)*(i - p1)*(i - p1)) + bVal*(double)((i - p1)*(i - p1));
+		//filterCoef(i) = 1.0 + (aVal*(double)((i - p1)*(i - p1)*(i - p1)) + bVal*(double)((i - p1)*(i - p1)))*pVal;
+		filterCoef(i) = 1.0+(aVal*(double)(i-p1)*(double)(i-p1)*(double)(i-p1) + bVal*(double)(i-p1)*(double)(i-p1));
 	}
 
 	// Constant, 3 part
-	for (int i = p3; i < q3; i++) {
+	for (int i = p3; i < q1; i++) {
 		filterCoef(i) = 1.0 + pVal;
 	}
 
 	// Decrease
 	for (int i = q1; i < q3; i++) {
-		filterCoef(i) = 1.0 + pVal - aVal*(double)((i - q1)*(i - q1)*(i - q1)) - bVal*(double)((i - q1)*(i - q1));
+		filterCoef(i) = 1.0 + pVal-(aVal*((double)(i - q1)*(double)(i - q1)*(double)(i - q1)) + bVal*((double)(i - q1)*(double)(i - q1)));
 	}
 
 	// Constant, at the edge
@@ -196,12 +204,14 @@ void createQuadMiddleFilterInverse(const int &k, const int &m, const int &n, Eig
 
 	double pVal = 1.0;
 	double qVal = 0.0;
-	double aVal = (-2.0*pVal + qVal*(double)p3) / ((double)(p3*p3*p3));
-	double bVal = (pVal - 1.0 / 3.0*qVal*(double)p3) / (1.0 / 3.0 * (double)(p3*p3));
+	double aVal = (-2.0*pVal + qVal*(double)(p3 - p1)) / ((double)((p3 - p1)*(p3 - p1)*(p3 - p1)));
+	double bVal = (pVal - 1.0 / 3.0*qVal*(double)(p3 - p1)) / (1.0 / 3.0 * (double)((p3 - p1)*(p3 - p1)));
+
+	//printf("a=%.32f, b=%.32f\n", aVal, bVal);
 
 	// Decrease
 	for (int i = p1; i < p3; i++) {
-		filterCoef(i) = 1.0 + pVal - aVal*(double)((i - p1)*(i - p1)*(i - p1)) - bVal*(double)((i - p1)*(i - p1));
+		filterCoef(i) = /*1.0 +*/ pVal - aVal*(double)((i - p1)*(i - p1)*(i - p1)) - bVal*(double)((i - p1)*(i - p1));
 	}
 
 	// Constant, 3 part
@@ -209,10 +219,10 @@ void createQuadMiddleFilterInverse(const int &k, const int &m, const int &n, Eig
 		filterCoef(i) = 0.0;
 	}
 
-	pVal = 0.5;
+	pVal = 2.0;
 	qVal = 0.0;
-	aVal = (-2.0*pVal + qVal*(double)p3) / ((double)(p3*p3*p3));
-	bVal = (pVal - 1.0 / 3.0*qVal*(double)p3) / (1.0 / 3.0 * (double)(p3*p3));
+	aVal = (-2.0*pVal + qVal*(double)(q3 - q1)) / ((double)((q3 - q1)*(q3 - q1)*(q3 - q1)));
+	bVal = (pVal - 1.0 / 3.0*qVal*(double)(q3 - q1)) / (1.0 / 3.0 * (double)((q3 - q1)*(q3 - q1)));
 
 	// Increase
 	for (int i = q1; i < q3; i++) {
