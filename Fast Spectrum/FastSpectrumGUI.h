@@ -49,7 +49,7 @@ void showMenu(igl::opengl::glfw::Viewer &viewer, igl::opengl::glfw::imgui::ImGui
 		// Variables For Viewer visualization
 		float	menuWindowLeft		= 0.f,
 				menuWindowWidth		= 200.f,
-				menuWindowHeight	= 475.f;
+				menuWindowHeight	= 600.f;
 		
 		Eigen::MatrixXd		vColor;
 		Eigen::VectorXd		Z;
@@ -98,7 +98,7 @@ void showMenu(igl::opengl::glfw::Viewer &viewer, igl::opengl::glfw::imgui::ImGui
 			}
 			if (ImGui::Button("Run Algorithm", ImVec2((w), 30))){
 				Eigen::SparseMatrix<double>	U;
-				fastSpectrum.computeEigenPairs( V, F, numOfSample, (SamplingType) sampleType, U, redEigVects, redEigVals);
+				fastSpectrum.computeEigenPairs(V, F, numOfSample, (SamplingType) sampleType, U, redEigVects, redEigVals);
 				
 				// Show the first non-zero eigenvectors
 				eigToShow					= 1;
@@ -398,17 +398,19 @@ void showMenu(igl::opengl::glfw::Viewer &viewer, igl::opengl::glfw::imgui::ImGui
 
 		// WINDOW FOR DIFFUSION DISTANCE		
 		if (boolDiffDist) {
-			ImGui::SetNextWindowPos(ImVec2((5.0f + menuWindowLeft + menuWindowWidth + 5.0f) * menu.menu_scaling(), 5.0f), ImGuiSetCond_FirstUseEver);
+			int windWidth, windHeight;
+			glfwGetWindowSize(viewer.window, &windWidth, &windHeight);
+			ImGui::SetNextWindowPos(ImVec2(((float)windWidth - 5.0f - menuWindowWidth)*menu.menu_scaling(), 5.0f), ImGuiSetCond_FirstUseEver);
+			//ImGui::SetNextWindowPos(ImVec2((5.0f + menuWindowLeft + menuWindowWidth + 5.0f) * menu.menu_scaling(), 5.0f), ImGuiSetCond_FirstUseEver);
 			ImGui::SetNextWindowSize(ImVec2(menuWindowWidth, 200), ImGuiSetCond_FirstUseEver);
-			ImGui::Begin("Diffusion Distance", nullptr, ImGuiWindowFlags_NoSavedSettings);
+			ImGui::Begin("Diffusion Distance", &boolDiffDist, ImGuiWindowFlags_NoSavedSettings);
 
 			float w2 = ImGui::GetContentRegionAvailWidth();
 			float p2 = ImGui::GetStyle().FramePadding.x;
 
 			fastSpectrum.getReducedEigVals(redEigVals);
 			int numAllEigs = (int)redEigVals.size();
-			ImGui::SliderInt("Eigenpairs to use ##forDiffusinDistance", &diffDistNumEigs, 1, numAllEigs /*(int) redEigVals.size()*/, "Use %d eig-pairs");
-			printf("usage of eigs=%d\n", diffDistNumEigs);
+			ImGui::SliderInt("Eigenpairs to use ##forDiffusionDistance", &diffDistNumEigs, 1, numAllEigs);
 			static char tValue[6] = "0.1"; ImGui::InputText("Value of t", tValue, 6);
 			diffDistT.at(0) = atof(tValue);
 			//diffDistT.push_back(atof(tValue));
@@ -429,7 +431,11 @@ void showMenu(igl::opengl::glfw::Viewer &viewer, igl::opengl::glfw::imgui::ImGui
 			ImGui::Spacing(); ImGui::Spacing();
 
 			if (ImGui::Button("Color Visualization", ImVec2(w2,0))) {
-				if (DiffusionTensor[0].size() < 1) {
+				if (appEigVals.size()<1) {
+					cout << "Error! Please compute the eigenpairs first." << endl;
+					return;
+				}
+				else if (DiffusionTensor[0].size() < 1) {
 					cout << "Error! Please compute the diffusion tensor first." << endl;
 					return;
 				}
@@ -440,37 +446,40 @@ void showMenu(igl::opengl::glfw::Viewer &viewer, igl::opengl::glfw::imgui::ImGui
 				viewer.data().set_colors(vColor);
 			}
 
-			if (ImGui::Button("Isolines Visualization", ImVec2(w2, 0))) {
-				if (DiffusionTensor[0].size() < 1) {
-					cout << "Error! Please compute the diffusion tensor first." << endl;
-					return;
-				}
-				int vertexID = (int) (rand() % V.rows());
-				visualizeDiffusionDist(V, DiffusionTensor, 0, vertexID, diffVector);
-				
-				printf("Size of diffvector=%d, V=%dx%d, F=%dx%d\n.", diffVector.size(), V.rows(), V.cols(), F.rows(), F.cols());
-				Eigen::MatrixXd isoV, isoE;
-				Eigen::VectorXd aaa = diffVector;
-
-				viewer.data().clear();
-				viewer.data().set_mesh(V, F);
-				//viewer.data().add_points(V.row(vertexID), Eigen::RowVector3d(0.7, 0.1, 0.1));
-				//igl::isolines(V, F, diffVector, 10, isoV, isoE);
-				//igl::isolines(V, F, aaa, 10, isoV, isoE);
-				printf("Size of isolines=%d\n.", isoE.size());
-
-				//for (int i = 0; i < isoE.rows(); i++) {
-				//	viewer.data().add_edges(isoV.row(isoE.row(i)(0)), isoV.row(isoE.row(i)(1)), Eigen::RowVector3d(0.6, 0.1, 0.1));
-				//}
-			}
+			//if (ImGui::Button("Isolines Visualization", ImVec2(w2, 0))) {
+			//	if (DiffusionTensor[0].size() < 1) {
+			//		cout << "Error! Please compute the diffusion tensor first." << endl;
+			//		return;
+			//	}
+			//	int vertexID = (int) (rand() % V.rows());
+			//	visualizeDiffusionDist(V, DiffusionTensor, 0, vertexID, diffVector);
+			//	
+			//	printf("Size of diffvector=%d, V=%dx%d, F=%dx%d\n.", diffVector.size(), V.rows(), V.cols(), F.rows(), F.cols());
+			//	Eigen::MatrixXd isoV, isoE;
+			//	Eigen::VectorXd aaa = diffVector;
+			//
+			//	viewer.data().clear();
+			//	viewer.data().set_mesh(V, F);
+			//	viewer.data().add_points(V.row(vertexID), Eigen::RowVector3d(0.7, 0.1, 0.1));
+			//	igl::isolines(V, F, diffVector, 10, isoV, isoE);
+			//	//igl::isolines(V, F, aaa, 10, isoV, isoE);
+			//	printf("Size of isolines=%d\n.", isoE.size());
+			//
+			//	//for (int i = 0; i < isoE.rows(); i++) {
+			//	//	viewer.data().add_edges(isoV.row(isoE.row(i)(0)), isoV.row(isoE.row(i)(1)), Eigen::RowVector3d(0.6, 0.1, 0.1));
+			//	//}
+			//}
 			ImGui::End();
 		}
 
 		// WINDOW FOR MESH FILTERING
-		if (boolMeshFilter) {
-			ImGui::SetNextWindowPos(ImVec2((5.0f + menuWindowLeft + menuWindowWidth + 5.0f) * menu.menu_scaling(), 5.0f), ImGuiSetCond_FirstUseEver);
-			ImGui::SetNextWindowSize(ImVec2(menuWindowWidth, 200), ImGuiSetCond_FirstUseEver);
-			ImGui::Begin("Mesh Filtering", nullptr, ImGuiWindowFlags_NoSavedSettings);
+		if (boolMeshFilter) {	
+			int windWidth, windHeight;
+			glfwGetWindowSize(viewer.window, &windWidth, &windHeight);
+			//ImGui::SetNextWindowPos(ImVec2((5.0f + menuWindowLeft + menuWindowWidth + 5.0f) * menu.menu_scaling(), 5.0f), ImGuiSetCond_FirstUseEver);
+			ImGui::SetNextWindowPos(ImVec2(((float)windWidth-5.0f-menuWindowWidth)*menu.menu_scaling(), 5.0f), ImGuiSetCond_FirstUseEver);
+			ImGui::SetNextWindowSize(ImVec2(menuWindowWidth, 225), ImGuiSetCond_FirstUseEver);
+			ImGui::Begin("Mesh Filtering", &boolMeshFilter, ImGuiWindowFlags_NoSavedSettings);
 
 			float w2 = ImGui::GetContentRegionAvailWidth();
 			float p2 = ImGui::GetStyle().FramePadding.x;
@@ -491,8 +500,8 @@ void showMenu(igl::opengl::glfw::Viewer &viewer, igl::opengl::glfw::imgui::ImGui
 			//numAllEigs = 1000;
 
 			
-			ImGui::SliderInt("Low-pass limit ##forDiffusionDistance", &lowPassLimit, 1, numAllEigs);
-			ImGui::SliderInt("High-pass limit ##forDiffusionDistance", &highPassLimit, lowPassLimit, numAllEigs);
+			ImGui::SliderInt("Low pass ##forDiffusionDistance", &lowPassLimit, 1, numAllEigs);
+			ImGui::SliderInt("High pass ##forDiffusionDistance", &highPassLimit, lowPassLimit, numAllEigs);
 
 			if (ImGui::Button("Compute Mesh Filter", ImVec2(3.0f*(w2-p2)/4.0f,30))) {
 				fastSpectrum.getV(Vold);
@@ -521,17 +530,21 @@ void showMenu(igl::opengl::glfw::Viewer &viewer, igl::opengl::glfw::imgui::ImGui
 
 		// WINDOW FOR VARIABLE OPERATOR
 		if (boolVarOperator) {
-			ImGui::SetNextWindowPos(ImVec2((5.0f+menuWindowLeft+menuWindowWidth+5.0f) * menu.menu_scaling(), 5.0f), ImGuiSetCond_FirstUseEver);
+			int windWidth, windHeight;
+			glfwGetWindowSize(viewer.window, &windWidth, &windHeight);
+			ImGui::SetNextWindowPos(ImVec2(((float)windWidth - 5.0f - menuWindowWidth)*menu.menu_scaling(), 5.0f), ImGuiSetCond_FirstUseEver);
+			//ImGui::SetNextWindowPos(ImVec2((5.0f+menuWindowLeft+menuWindowWidth+5.0f) * menu.menu_scaling(), 5.0f), ImGuiSetCond_FirstUseEver);
 			ImGui::SetNextWindowSize(ImVec2(menuWindowWidth, 150), ImGuiSetCond_FirstUseEver);
-			ImGui::Begin("Variable Operator", nullptr, ImGuiWindowFlags_NoSavedSettings);
+			ImGui::Begin("Variable Operator", &boolVarOperator, ImGuiWindowFlags_NoSavedSettings);
 
 			float w2 = ImGui::GetContentRegionAvailWidth();
 			float p2 = ImGui::GetStyle().FramePadding.x;
 			
 			// For Variable-Operator
 			Eigen::MatrixXd appEigVects;
+			
 			if (ImGui::Button("Initiate Variable Operator", ImVec2((w2), 30))) {
-				varOperator.constructVariableOperator(V, F, 125, Sample_Farthest_Point, varOpT, appEigVects);
+				varOperator.constructVariableOperator(V, F, 75, Sample_Poisson_Disk, varOpT, appEigVects);
 				varOperator.recomputeVarOpEigVects(varOpT, appEigVects);
 				Z = appEigVects.col(eigToShow);
 				if (eigToShow>0)
@@ -545,6 +558,12 @@ void showMenu(igl::opengl::glfw::Viewer &viewer, igl::opengl::glfw::imgui::ImGui
 
 			ImGui::SliderFloat("\'t\' value", &varOpT, 0.0f, 1.0f, "%.2f");
 			if (ImGui::Button("Recompute", ImVec2((w2), 0))) {
+				int sampleSize;
+				varOperator.getSampleSize(sampleSize);
+				if (sampleSize < 1) {
+					cout << "Error! You need to 'Initiate variable Operator' first before re-compute the eigenvectors." << endl; 
+					return;
+				}
 				varOperator.recomputeVarOpEigVects(varOpT, appEigVects);
 
 				Z = appEigVects.col(eigToShow);
