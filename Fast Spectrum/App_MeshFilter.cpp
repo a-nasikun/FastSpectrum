@@ -156,7 +156,7 @@ void createQuadMiddleFilter(const int &k, const int &m, const int &n, Eigen::Vec
 	}
 
 	// Increase
-	double pVal = 2.0;
+	double pVal = 1.0;
 	double qVal = 0.0;
 	double aVal = (-2.0*pVal + qVal*(double)(p3-p1)) / ((double)((p3 - p1)*(p3 - p1)*(p3 - p1)));
 	double bVal = (pVal - 1.0/3.0*qVal*(double)(p3 - p1)) / (1.0/3.0 * (double)((p3 - p1)*(p3 - p1)));
@@ -219,7 +219,7 @@ void createQuadMiddleFilterInverse(const int &k, const int &m, const int &n, Eig
 		filterCoef(i) = 0.0;
 	}
 
-	pVal = 2.0;
+	pVal = 1.25;
 	qVal = 0.0;
 	aVal = (-2.0*pVal + qVal*(double)(q3 - q1)) / ((double)((q3 - q1)*(q3 - q1)*(q3 - q1)));
 	bVal = (pVal - 1.0 / 3.0*qVal*(double)(q3 - q1)) / (1.0 / 3.0 * (double)((q3 - q1)*(q3 - q1)));
@@ -229,8 +229,10 @@ void createQuadMiddleFilterInverse(const int &k, const int &m, const int &n, Eig
 		filterCoef(i) = 0.0 + aVal*(double)((i - q1)*(i - q1)*(i - q1)) + bVal*(double)((i - q1)*(i - q1));
 	}
 
-	// Ones part
+	// ends part
 	for (int i = q3; i < n; i++) {
 		filterCoef(i) = pVal;
 	}
+
+	//cout << "Filter \n" << filterCoef << endl; 
 }

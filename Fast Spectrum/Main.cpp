@@ -97,8 +97,9 @@ int main(int argc, char *argv[])
 
 	viewer.callback_key_down		= key_down;
 
-	Eigen::Vector4f					bgCol(0.5f, 0.4f, 0.9f, 0.2f);
+	//Eigen::Vector4f					bgCol(0.5f, 0.4f, 0.9f, 0.2f);
 	//Eigen::Vector4f				bgCol(0.95f, 0.95f, 0.95f, 1.0f);
+	Eigen::Vector4f					bgCol(1.00f, 1.00f, 1.00f, 1.0f);
 	viewer.core.background_color	= bgCol;
 	viewer.data().point_size		= 5.0f;
 	viewer.data().line_width		= 0.5f; 	
