@@ -6,6 +6,7 @@
 #include <assert.h> 
 
 #include <Eigen/Eigen>
+#include <Eigen/SparseCore>
 
 // For CUDA
 #include "cublas_v2.h"

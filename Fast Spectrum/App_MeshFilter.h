@@ -3,6 +3,7 @@
 #define APP_MESH_FILTER_H
 
 #include <Eigen/Eigen>
+#include <Eigen/SparseCore>
 
 /* Enum for different sampling method */
 enum FilterType {

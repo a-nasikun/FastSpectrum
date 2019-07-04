@@ -10,6 +10,7 @@
 #include <omp.h>			// OpenMP, parallelizing basis construction
 
 #include <Eigen/Eigen>
+#include <Eigen/SparseCore>
 
 #include "Utility.h"
 

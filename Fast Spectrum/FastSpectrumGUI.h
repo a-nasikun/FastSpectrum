@@ -422,24 +422,28 @@ void showMenu(igl::opengl::glfw::Viewer &viewer, igl::opengl::glfw::imgui::ImGui
 
 			if (ImGui::Button("Compute Diffusion Distance", ImVec2(w2, 30))) {
 				fastSpectrum.getApproxEigVects(appEigVecs);
-				cout << "Get the eigenvectors" << endl;
+				cout << "Get the eigenvectors: " << appEigVecs.rows() << " by " << appEigVecs.cols() << endl;
 				fastSpectrum.getReducedEigVals(appEigVals);
-				cout << "Get the eigenvalues" << endl; 
+				cout << "Get the eigenvalues: " << appEigVals.size() << endl; 
 				constructDiffusionTensor(appEigVecs, appEigVals, V, diffDistNumEigs, diffDistT, DiffusionTensor);
 			}
 
 			ImGui::Spacing(); ImGui::Spacing();
 
 			if (ImGui::Button("Color Visualization", ImVec2(w2,0))) {
-				if (appEigVals.size()<1) {
-					cout << "Error! Please compute the eigenpairs first." << endl;
-					return;
-				}
-				else if (DiffusionTensor[0].size() < 1) {
+				cout << "Get the eigenvalues: " << appEigVals.size() << endl;
+				//if (appEigVals.size()<1) {
+				//	cout << "Error! Please compute the eigenpairs first." << endl;
+				//	return;
+				//}
+				//else 
+				if (DiffusionTensor[0].size() < 1) {
 					cout << "Error! Please compute the diffusion tensor first." << endl;
 					return;
 				}
-				visualizeDiffusionDist(V, DiffusionTensor, 0, rand() % V.rows(), diffVector);
+				const int sourceID = 100;
+				//visualizeDiffusionDist(V, DiffusionTensor, 0, rand() % V.rows(), diffVector);
+				visualizeDiffusionDist(V, DiffusionTensor, 0, sourceID, diffVector);
 
 				Z = diffVector;
 				igl::jet(Z, true, vColor);

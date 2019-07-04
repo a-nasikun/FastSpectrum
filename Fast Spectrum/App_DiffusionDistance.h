@@ -3,6 +3,7 @@
 #define APP_DIFFUSION_DISTANCE_H
 
 #include <Eigen/Eigen>
+#include <Eigen/SparseCore>
 #include <vector>
 
 using namespace std;

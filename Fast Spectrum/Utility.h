@@ -11,6 +11,7 @@
 #include <chrono>				// For quite precise timing, needed (perhaps) in most sub-task
 
 #include <Eigen/Eigen>
+#include <Eigen/SparseCore>
 
 using namespace std;
 
