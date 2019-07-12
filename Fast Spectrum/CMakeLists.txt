@@ -9,13 +9,13 @@ set (${PROJECT_NAME}_VERSION_MINOR 0)
 
 SET(CMAKE_BUILD_TYPE "Release")
 
-set (IGL_DIR "" CACHE PATH "Root directory of libIGL")
-set (EIGEN_DIR "" CACHE PATH "Root directory of Eigen")
-set (IMGUI_DIR "" CACHE PATH "Library directory of IMGUI")
-set (GLFW_INCLUDE_DIR "" CACHE PATH "Include directory of GLFW")
-set (GLFW_LIBRARY_DIR "" CACHE PATH "Library directory of GLFW")
-set (GLAD_INCLUDE_DIR "" CACHE PATH "Include directory of GLAD")
-set (GLAD_LIBRARY_DIR "" CACHE PATH "Library directory of GLAD")
+set (IGL_DIR          "${CMAKE_CURRENT_LIST_DIR}/../libigl" CACHE PATH "Root directory of libIGL")
+set (EIGEN_DIR        "${IGL_DIR}/external/eigen"           CACHE PATH "Root directory of Eigen")
+set (IMGUI_DIR        "${IGL_DIR}/external/imgui"           CACHE PATH "Library directory of IMGUI")
+set (GLFW_INCLUDE_DIR "${IGL_DIR}/external/glfw"            CACHE PATH "Include directory of GLFW")
+set (GLFW_LIBRARY_DIR ""                                    CACHE PATH "Library directory of GLFW")
+set (GLAD_INCLUDE_DIR "${IGL_DIR}/external/glad"            CACHE PATH "Include directory of GLAD")
+set (GLAD_LIBRARY_DIR ""                                    CACHE PATH "Library directory of GLAD")
 #set (MATLAB_LIBS_DIR "" CACHE PATH "Matlab static library dirs (e.g. R2018a/extern/lib/win64/microsoft)")
 #set (MATLAB_INCLUDE_DIR "" CACHE PATH "Matlab include dir ((e.g. R2018a/extern/include)")
 
@@ -28,41 +28,41 @@ include_directories(${IGL_DIR}/include/
 					${IMGUI_DIR}
 )
 
-#Defining the system varibles where the link libraries reside					
+#Defining the system varibles where the link libraries reside
 link_directories(${GLFW_LIBRARY_DIR}
 				 ${GLAD_LIBRARY_DIR}
-)	
+)
 
-#Stating what files to include in the project				 
+#Stating what files to include in the project
 add_executable(${PROJECT_NAME}
-	Main.cpp 
+	Main.cpp
 	FastSpectrum.h
 	FastSpectrum.cpp
 	FastSpectrumGUI.h
-	Basis.h 
-	Basis.cpp 
-	EigenSolver.h 
-	EigenSolver.cpp 
-	Sampling.h 
-	Sampling.cpp 
-	Utility.h 
-	Utility.cpp 
-	Visualization.h 
+	Basis.h
+	Basis.cpp
+	EigenSolver.h
+	EigenSolver.cpp
+	Sampling.h
+	Sampling.cpp
+	Utility.h
+	Utility.cpp
+	Visualization.h
 	Visualization.cpp
 )
 
 target_link_libraries(
 	${PROJECT_NAME}
-	OpenGL32.lib; 			
+	OpenGL32.lib;
 	glad.lib;
 	glfw3.lib;
-	cublas.lib; 			cudart.lib; 
+	cublas.lib; 			cudart.lib;
 	cusolver.lib; 			cusparse.lib;
-	#libeng.lib; 			libut.lib; 
-	#libmex.lib; 			libmx.lib;	
-)	
+	#libeng.lib; 			libut.lib;
+	#libmex.lib; 			libmx.lib;
+)
 
-if(MSVC)	
+if(MSVC)
 	add_definitions(-D_USE_MATH_DEFINES)
 endif()
 
