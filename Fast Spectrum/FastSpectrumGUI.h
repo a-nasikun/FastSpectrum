@@ -7,7 +7,6 @@
 #include <imgui/imgui_demo.cpp>
 #include <imgui/imgui_draw.cpp>
 #include <imgui_impl_glfw_gl3.h>
-#include <imgui_impl_glfw_gl3.cpp>
 
 #include <igl/igl_inline.h>
 #include <igl/opengl/glfw/Viewer.h>
