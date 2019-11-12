@@ -23,7 +23,9 @@ We use **CMake** for easy installation/deployment on your machine, by creating a
 4. Run the Cmake command and it should be working and **running** without any problem.
    If some headers/libraries are missing (perhaps because you locate the wrong folder), you could specify it directly in your application. For example, in Visual Studio you could go to `Project` > `Properties` > `C/C++` > `General` > `Additional Include Directories`.
 
-Having followed those steps, our program **should compile and run** well. This program is still under continuous development, so please expect some errors/bugs/mistakes within it. If you have any problem compiling it or having some nice suggestion(s) or question(s), please drop me an **email** at `a.nasikun[at]tudelft.nl`.
+Having followed those steps, our program **should compile and run** as expected. This program is still under continuous development, so please expect some errors/bugs/mistakes while exploring it it. If you have any problem compiling it or having some nice suggestion(s) or question(s), please drop me an **email** at `a.nasikun[at]tudelft.nl`.
+
+Note: parameter **support** in **ConstructBasis()** function controls the sparsity of the basis matrix *U*, approximating the number of non-zero entries per row. It is currently hard-coded to have approximately 8-15 non-zero entries on each row. If a user prefers to have a different support number, s/he is welcomed to do so. We are a bit conservative (as as the effect of Euclidean distance), so that actual value would be higher than the input value. 
 
 ## SGP 2018 (Symposium on Geometry Processing 2018)
 
