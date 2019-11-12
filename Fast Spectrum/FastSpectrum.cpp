@@ -166,8 +166,19 @@ void FastSpectrum::constructSample(){
 }
 
 void FastSpectrum::constructBasis() {
-	double	distRatio = sqrt(pow(1.1, 2) + pow(0.7, 2));			// A heuristic to make the support around 10.00 (i.e. number of non-zeros per row)
-	maxNeighDist = distRatio * sqrt((double)V.rows() / (double)Sample.size()) * avgEdgeLength;
+	/* Initial heuristic*/
+	//double	distRatio = sqrt(pow(1.1, 2) + pow(0.7, 2));			// A heuristic to make the support around 10.00 (i.e. number of non-zeros per row)
+	//maxNeighDist = distRatio * sqrt((double)V.rows() / (double)Sample.size()) * avgEdgeLength;
+	
+	/* A better heuristic, taking into account more of the geometry of the model */
+	const double	support = 10.0;				// The value would be larger than this, since we are using Dijkstra with Euclidean correction for basis construction
+	double			area = 0.0;
+	Eigen::VectorXd doubleArea;
+	igl::doublearea(V, F, doubleArea);
+	for (int i = 0; i < F.rows(); i++) area += (doubleArea(i));
+	area			= area / 2.0;
+
+	maxNeighDist = sqrt((support*area) / (Sample.size()*M_PI));
 	constructBasisFunctions();
 	formPartitionOfUnity();
 }
@@ -402,7 +413,8 @@ void FastSpectrum::constructBasisFunctions()
 	}
 	Basis.setFromTriplets(AllTriplet.begin(), AllTriplet.end());
 
-	printf("A basis matrix (%dx%d) is constructed.\n", Basis.rows(), Basis.cols());
+	printf("A basis matrix (%dx%d) is constructed, ", Basis.rows(), Basis.cols());
+	printf("with %.2f support per row \n", (double)Basis.nonZeros()/(double)Basis.rows());
 }
 
 /* [Form partition of unity for the basis matrix Basis] */
