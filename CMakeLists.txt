@@ -59,7 +59,14 @@ add_executable(FastSpectrum
 	"Fast Spectrum/Utility.h"
 	"Fast Spectrum/Utility.cpp"
 	"Fast Spectrum/Visualization.h"
-	"Fast Spectrum/Visualization.cpp")
+	"Fast Spectrum/Visualization.cpp"
+	"Fast Spectrum/App_MeshFilter.h"
+	"Fast Spectrum/App_MeshFilter.cpp"
+	"Fast Spectrum/App_DiffusionDistance.h"
+	"Fast Spectrum/App_DiffusionDistance.cpp"
+	"Fast Spectrum/App_VariableOperator.h"
+	"Fast Spectrum/App_VariableOperator.cpp"
+	)
 target_link_libraries(FastSpectrum
 	PUBLIC libigl
 	PUBLIC eigen
